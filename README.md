@@ -9,5 +9,5 @@ TF Easy Colors Map is a plugin for Krita for creating a Map (a collection) of yo
 All starts creating a new Colors Map, which is a simple .txt file. Now, you can start adding your colors and, if you want, organizing them with titles.
 Adding a colors is pretty simple: once you have the desired color set in the Krita document **foreground**, just **right** click your Map, type a name when requested and it's added to your collection.
 
-![preview]https://i.ibb.co/hBD6LBr/schema.jpg
+![preview](https://i.ibb.co/hBD6LBr/schema.jpg)
 
