@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Service
+ServiceTypes=Krita/PythonPlugin
+X-KDE-Library=easycolorselector
+X-Python-2-Compatible=false
+Name=Easy Color Selector
+Comment=Easy Color Selector.
