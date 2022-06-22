@@ -11,3 +11,6 @@ Adding a colors is pretty simple: once you have the desired color set in the Kri
 
 ![preview](https://i.ibb.co/hBD6LBr/schema.jpg)
 
+If you need to catch more colors (for example, grabbing them from an image) you can automize the process. Just press the "Auto Add Colors" button and start using the Krita's Color Sampler tool to select your desired color. Every time the foreground color changes, the Colors Map will ask you to type a name and that color is added into your Map. When you finished, press the "Auto Add Colors" button again to stop this feature.
+
+![preview](https://i.ibb.co/RhJLxfc/anim.gif)
