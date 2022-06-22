@@ -36,3 +36,8 @@ You can perform various operations to manage your colors, titles and grouped col
 #### INLINE HELP MANUAL
 
 Click the [?] button to show the inline manual with all the features explained.
+
+
+#### WHY THIS PLUGIN
+
+I'm a comic artist, so I have to apply the same colors on different pages. Krita is fantastic software for the flattening process, but personally I find the color management system unsuitable for the flexibility and speed I would like. For this reason, I created a plugin that offered what I need, such as organizing colors quickly, easily seeing the name of a color and so on.
