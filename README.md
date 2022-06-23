@@ -33,6 +33,14 @@ You can perform various operations to manage your colors, titles and grouped col
 ![preview](https://i.ibb.co/r02X5ZQ/schema3.jpg)
 
 
+#### TEMPORARY COLORS (SECONDARY PALETTE)
+
+If you need to use a color, but you don't need to have it saved into your Colors Map, you can use the "secondary" palette placed above the Colors Map. In that palette, colors are kept in memory and not saved. It can be useful, for example, if you have to use a specific color more times in the current Krita document, but you don't need or want to have it in the Colors Map because it's used in that occasion only and it won't be used in other documents.
+Adding and selecting colors here use the same logic of the Colors Map (but this palette doesn't have any functionality):
+ - **right** click this palette for adding a color
+ - **left** click a color to select it as foreground color (+ **SHIFT** as background color)
+
+
 #### INLINE HELP MANUAL
 
 Click the [?] button to show the inline manual with all the features explained.
