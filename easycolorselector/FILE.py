@@ -5,6 +5,7 @@ from PyQt5.QtCore import QTimer
 from krita import *
 from .ALERT import *
 import os.path
+from .SYS import *
 
 class FILE:
     def __init__(self):
@@ -65,17 +66,24 @@ class FILE:
         fileContent = FILE.open(fileName)
         item = fileContent[index]
         lineData = item.split("|")
-        isColor = FILE.lineIsColor(item)
-        isTitle = FILE.lineIsTitle(item)
+        isColor = SYS.lineIsColor(item)
+        isTitle = SYS.lineIsTitle(item)
 
-        if (menu == menuItem["Rename"]):
-            newName = ALERT.prompt("NEW COLOR NAME" if isColor else "NEW GROUP NAME", "Type a new short name:")
+        if (menu == menuItem["Rename"] or menu == "[RENAME]"):
+            newName = ALERT.prompt("NEW COLOR NAME" if isColor else "NEW GROUP NAME", "Type a new short name:", lineData[0])
             if (newName["ok"]):
                 if (isColor):
                     lineData[0] = newName["value"]
                     fileContent[index] = '|'.join(lineData)
                 else:
                     fileContent[index] = newName["value"] + "\n"
+                FILE.saveList(fileName, fileContent)
+            pass
+
+        elif (menu == menuItem["AddTitle"]):
+            title = ALERT.prompt("GROUP TITLE", "Type a title for a new group of Colors:")
+            if (title["ok"]):
+                fileContent.insert(index + 1, title["value"] + "\n")
                 FILE.saveList(fileName, fileContent)
             pass
 
@@ -105,13 +113,13 @@ class FILE:
                 ALERT.error("ATTENTION", "You must click a Color (after which to paste the cut Group). You clicked a Group Title instead.")
                 return
 
-            if (FILE.lineIsColor(fileContent[FILE.cutItemIndex])):
+            if (SYS.lineIsColor(fileContent[FILE.cutItemIndex])):
                 ALERT.error("ATTENTION", "The element you cut was a Color. This 'paste' function can work with cut Groups only.")
                 return
             
             group = list()
             for i, line in enumerate(fileContent):
-                if (i > FILE.cutItemIndex and FILE.lineIsTitle(line)): break
+                if (i > FILE.cutItemIndex and SYS.lineIsTitle(line)): break
                 if (i >= FILE.cutItemIndex):
                     group.append(line)
                     fileContent[i] = ""
@@ -129,21 +137,9 @@ class FILE:
             FILE.saveList(fileName, fileContent)
             pass
 
-    def lineIsColor(line):
-        if (line == ""): return False
-        return (line.find("#") != 0 and line.find("|") > 0)
-
-    def lineIsTitle(line):
-        if (line == ""): return False
-        return (line.find("#") < 0 and line.find("|") < 0)
-
     def isCutIndexValid():
-        if (FILE.isProperty(FILE.cutItemIndex)):
+        if (SYS.isProperty(FILE.cutItemIndex)):
             return False
         elif (FILE.cutItemIndex < 0):
             return False
         return True
-
-    def isProperty(value):
-        string = str(value)
-        return string.find("property") >= 0

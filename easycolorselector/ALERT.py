@@ -47,13 +47,13 @@ class ALERT:
         msgbox.setWindowTitle(title)
         msgbox.setInputMode(QInputDialog.TextInput)
         msgbox.setLabelText(text)
-        msgbox.setTextValue(value)
+        msgbox.setTextValue(value.replace("\n", ""))
 
         d = dict()
         if (msgbox.exec()):
             reply = msgbox.textValue()
             if (reply.find("|") >= 0):
-                ALERT.error("ATTENTION", "You can't use the | (pipe) character inside your text.")
+                ALERT.error("ATTENTION", "You can't use the '|' (pipe) character inside your text.")
                 d["ok"] = False
                 d["value"] = ""
             else:
@@ -64,6 +64,7 @@ class ALERT:
             d["ok"] = False
             d["value"] = ""
 
+        d["value"] = d["value"].replace("\n", "")
         return d
         pass
 

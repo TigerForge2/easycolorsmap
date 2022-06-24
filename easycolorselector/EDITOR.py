@@ -1,9 +1,6 @@
 from PyQt5.QtWidgets import *
 from PyQt5 import QtGui, QtCore
-from PyQt5.QtGui import QCursor
-from PyQt5.QtCore import QTimer
 from krita import *
-from .ALERT import *
 from .FILE import *
 from .UI import *
 import math

@@ -6,8 +6,10 @@ from krita import *
 from .UI import *
 from .ALERT import *
 from .FILE import *
+from .CONFIG import *
 from .EDITOR import *
 from .HELP import *
+from .SYS import *
 import math
 
 class MyDocker(DockWidget):
@@ -19,29 +21,40 @@ class MyDocker(DockWidget):
         self.setWidget(mainWidget)
         self.fileName = ""
         self.fileSize = 0
+        self.settings = CONFIG()
+        self.settings.closeEvent = self.configClose
         self.guide = HELP()
         self.editor = EDITOR()
         self.editor.closeEvent = self.editClose
         self.selColor = Qt.black
         self.tempColors = list()
         self.map = list()
+
+        appNotifier  = Krita.instance().notifier()
+        appNotifier.setActive(True)
+        appNotifier.viewClosed.connect(self.viewClosedEvent)
+        appNotifier.viewCreated.connect(self.viewOpenedEvent)
         
         openButton = UI.toolBt('document-open', self.fileOpen, "OPEN MAP\nLoad an existing Colors Map or create a new one.")
         editButton = UI.toolBt('document-edit', self.edit, "MAP EDITOR\nEdit the current Colors Map.")
-        titleButton = UI.toolBt('draw-text', self.addTitle, "ADD GROUP TITLE\nAdd a title for a group of Colors.")
+        configButton = UI.toolBt('config-performance', self.config, "SETTINGS\nChange the settings of this Colors Map.")
         self.autoButton = UI.toolBt('fillLayer', self.autoColorAcquisition, "AUTO ADD COLORS\Start/stop the Colors auto-acquisition.")
         self.autoButton.setCheckable(True)
         helpButton = UI.toolBt('document-open', self.help, "GUIDE\nShow the inline guide.", Qt.ToolButtonTextOnly, "?")
 
-        self.contextMenu = QMenu(self)
-        self.contextMenuItems = dict()
-        self.contextMenuItems["Rename"] = self.contextMenu.addAction("Rename")
-        self.contextMenu.addSeparator()
-        self.contextMenuItems["Cut"] = self.contextMenu.addAction("Cut")
-        self.contextMenuItems["Paste"] = self.contextMenu.addAction("Paste")
-        self.contextMenuItems["PasteGroup"] = self.contextMenu.addAction("Paste Group")
-        self.contextMenu.addSeparator()
-        self.contextMenuItems["Delete"] = self.contextMenu.addAction("Delete")
+        self.contextMenu = UI.contextMenu(self)
+        self.contextMenuItems = UI.contextMenuItems(
+            self.contextMenu,
+            [
+                ["AddTitle", "Add Group Title", "Add a Group Title after this clicked Color or Group Title."],
+                ["Rename", "Rename [left + CTRL]", "Change the name of the clicked Color or Group Title."],
+                ["-"],
+                ["Cut", "Cut", "Select the clicked Color or Group Title for the next 'Paste' operation."],
+                ["Paste", "Paste after", "Paste the 'cut' element after this clicked Color or Group Title."],
+                ["PasteGroup", "Paste Group after", "Paste the 'cut' Group Title and Colors after the clicked Color."],
+                ["-"],
+                ["Delete", "Delete", "Delete the clicked Color or Group Title (not its Colors)"]
+            ])
 
         self.colorsMap = QLabel(mainWidget)
         self.colorsMap.setAlignment(Qt.AlignTop | Qt.AlignLeft)
@@ -84,9 +97,9 @@ class MyDocker(DockWidget):
         tLayout = QHBoxLayout()
         toolLayout.setLayout(tLayout)
         toolLayout.layout().addWidget(openButton)
-        toolLayout.layout().addWidget(titleButton)
         toolLayout.layout().addWidget(self.autoButton)
         toolLayout.layout().addWidget(editButton)
+        toolLayout.layout().addWidget(configButton)
         toolLayout.layout().addWidget(self.colorLabel)
         toolLayout.layout().addWidget(helpButton)
 
@@ -101,6 +114,8 @@ class MyDocker(DockWidget):
         self.timerAutoColors = QTimer()
         self.timerAutoColors.timeout.connect(self.autoAddColor)
 
+        self.timerDocOpened = QTimer()
+        self.timerDocOpened.timeout.connect(self.getAnnotation)
 
     def onWindowResize(self):
         if (self.windowSize != self.scrollArea.size()):
@@ -108,30 +123,55 @@ class MyDocker(DockWidget):
             if (self.fileSize > 0): self.renderFile()
         pass
 
+    def viewClosedEvent(self):
+        self.fileName = ""
+        self.fileSize = 0
+        self.tempColors = list()
+        self.map = list()
+        self.colorsMapImage = QImage()
+        self.tempMapImage = QImage()
+        pixmap = QPixmap(1, 1)
+        pixmap.fill(Qt.transparent)
+        self.colorsMap.setPixmap(pixmap)
+        self.tempMap.setPixmap(pixmap)
+
+    def viewOpenedEvent(self):
+        self.timerDocOpened.start(1000)
+
+    def getAnnotation(self):
+        fileName = UI.getAnnotation()
+        if (fileName != ""): self.fileOpenByName(fileName)
+        self.timerDocOpened.stop()
+
     def fileOpen(self):
+        if (self.noKritaDoc()): return
+
         fileName = ALERT.dialogOpen("Colors Map", "Colors Map Files (*.txt)")
+        self.fileOpenByName(fileName)
         
+        pass
+
+    def fileOpenByName(self, fileName):
         if fileName != "":
             self.fileName = FILE.fileTxt(fileName)
             if (FILE.exists(self.fileName)):
-                self.fileSize = UI.getFileSize(self.fileName)
+                SYS.checkVersion(self.fileName)
             else:
-                self.fileSize = 0      
+                SYS.initMap(self.fileName)
 
-        self.renderFile()
-        pass
-
-    def addTitle(self):
-        if (self.fileName != ""):
-            title = ALERT.prompt("GROUP TITLE", "Type a title for a new group of Colors:")
-            if (title["ok"]):
-                FILE.save(self.fileName, title["value"])
-                self.renderFile()
-        else:
-            ALERT.warn("ATTENTION", "There is not a Colors Map file yet.")
-        pass
+            self.fileSize = UI.getFileSize(self.fileName)
+            self.renderFile()
+            UI.setAnnotation(self.fileName)
 
     def autoColorAcquisition(self):
+        if (self.noKritaDoc()): return
+
+        if (self.fileName == ""):
+            ALERT.warn("ATTENTION", "There is not a Colors Map file yet.")
+            self.autoButton.setChecked(False)
+            self.timerAutoColors.stop()
+            return
+
         if (self.autoButton.isChecked()):
             newColor = UI.getForegroundQColor()
             self.selColor = newColor
@@ -148,6 +188,8 @@ class MyDocker(DockWidget):
         pass
 
     def onColorsMapClick(self, event):
+        if (self.noKritaDoc()): return
+
         modifierPressed = QApplication.keyboardModifiers()
         isShift = (modifierPressed & Qt.ShiftModifier)
         isCtrl = (modifierPressed & Qt.ControlModifier)
@@ -164,6 +206,13 @@ class MyDocker(DockWidget):
                 self.changeKritaColor(px, 0)
             elif (isShift):
                 self.changeKritaColor(px, 1)
+            elif (isCtrl):
+                px = self.colorsMapImage.pixelColor(x, y)
+                if (px.alpha() != 0):
+                    itemIndex = self.getColorIndex(x, y)
+                    if (itemIndex >= 0): 
+                        FILE.executeAction("[RENAME]", self.contextMenuItems, itemIndex, self.fileName)
+                        self.renderFile()
 
         if (rightClick):
             if (not modifierPressed):
@@ -183,6 +232,8 @@ class MyDocker(DockWidget):
         pass
 
     def onTempMapClick(self, event):
+        if (self.noKritaDoc()): return
+
         modifierPressed = QApplication.keyboardModifiers()
         isShift = (modifierPressed & Qt.ShiftModifier)
         isCtrl = (modifierPressed & Qt.ControlModifier)
@@ -207,20 +258,13 @@ class MyDocker(DockWidget):
         pass
 
     def changeKritaColor(self, px, type):
-        activeView = Krita.instance().activeWindow().activeView()
-        myColor = ManagedColor("RGBA", "U8", "")
-        colorComponents = myColor.components()
-        colorComponents[0] = px.blueF()
-        colorComponents[1] = px.greenF()
-        colorComponents[2] = px.redF()
-        colorComponents[3] = px.alphaF()
-        myColor.setComponents(colorComponents)
+        myColor = UI.getManagedColor(px)
         if (type == 0): 
-            activeView.setForeGroundColor(myColor) 
+            UI.setForeGroundColor(myColor) 
         else: 
-            activeView.setBackGroundColor(myColor)
+            UI.setBackGroundColor(myColor)
 
-        self.colorLabel.setText("RGB  " + str(px.red()) + "  " + str(px.green()) + "  " + str(px.blue()))
+        self.colorRGBALabel(px)
         pass
 
     def addNewColor(self):
@@ -249,9 +293,6 @@ class MyDocker(DockWidget):
         pass
 
     def renderFile(self):
-        if (self.fileSize == 0):
-            FILE.write(self.fileName, "NEW COLORS MAP\n")
-
         rendered = UI.renderColorsMap(self.fileName, self.scrollArea.size())
         self.setPixmap(rendered["pixmap"])
         self.map = rendered["map"]
@@ -262,7 +303,10 @@ class MyDocker(DockWidget):
         pass
 
     def colorRGBALabel(self, qColor):
-        self.colorLabel.setText("RGB  " + str(qColor.red()) + "  " + str(qColor.green()) + "  " + str(qColor.blue()))
+        if (UI.colorProfile() == "RGB"):
+            self.colorLabel.setText("RGB  " + str(qColor.red()) + "  " + str(qColor.green()) + "  " + str(qColor.blue()))
+        else:
+            self.colorLabel.setText("CMYK  " + str(qColor.cyan()) + "  " + str(qColor.magenta()) + "  " + str(qColor.yellow()) + "  " + str(qColor.black()))
         pass
 
     def setPixmap(self, pixmap):
@@ -324,9 +368,27 @@ class MyDocker(DockWidget):
         return -1
         pass
 
+    def noKritaDoc(self):
+        if (UI.noKritaDoc()):
+            ALERT.warn("NO KRITA DOCUMENT", "Open a Krita document before creating or loading a Colors Map.")
+            return True
+        return False
+
+
     def help(self):
         self.guide.show()
         pass
+
+    def config(self):
+        if (self.fileName == ""):
+            ALERT.warn("ATTENTION", "There is not a Colors Map file yet.")
+            return
+        self.settings.init(self.fileName)
+        self.settings.show()
+        pass
+
+    def configClose(self, event):
+        self.renderFile()
 
     def canvasChanged(self, canvas):
         pass

@@ -1,8 +1,7 @@
 from PyQt5.QtWidgets import *
 from PyQt5 import QtGui, QtCore
-from PyQt5.QtGui import QCursor
-from PyQt5.QtCore import QTimer
 from krita import *
+from .SYS import *
 from .ALERT import *
 from .FILE import *
 import math
@@ -21,6 +20,22 @@ class UI:
         bt.clicked.connect(f)
         return bt
         pass
+
+    def contextMenu(self):
+        contextMenu = QMenu(self)
+        contextMenu.setToolTipsVisible(True)
+        return contextMenu
+
+    def contextMenuItems(cM, data):
+        menuItems = dict()
+        for item in data:
+            if (item[0] == "-"):
+                cM.addSeparator()
+            else:
+                menuItems[item[0]] = cM.addAction(item[1])
+                menuItems[item[0]].setToolTip(item[2])
+        return menuItems
+
 
     def bt(text, f, toolTip=""):
         bt = QPushButton()
@@ -67,22 +82,81 @@ class UI:
         except:
             return None
 
+    def setAnnotation(fileName):
+        activeView = Krita.instance().activeDocument()
+        activeView.setAnnotation('TFECMAP', "Path to TF Easy Colors Map", QByteArray(fileName.encode()))
+        pass
+
+    def getAnnotation():
+        try:
+            activeView = Krita.instance().activeDocument()
+            annotation = activeView.annotation('TFECMAP')
+            if (annotation is None):
+                return ""
+            else:
+                return bytes(annotation).decode()
+        except:
+            return ""
+        pass
+
+    def setForeGroundColor(color):
+        activeView = Krita.instance().activeWindow().activeView()
+        activeView.setForeGroundColor(color) 
+
+    def setBackGroundColor(color):
+        activeView = Krita.instance().activeWindow().activeView()
+        activeView.setBackGroundColor(color) 
+
+    def colorProfile():
+        activeView = Krita.instance().activeDocument()
+        if (activeView.colorModel() == "RGBA"):
+            return "RGB"
+        else:
+            return "CMYK"
+
+    def colorDepth():
+        activeView = Krita.instance().activeDocument()
+        return activeView.colorDepth()
+
+    def noKritaDoc():
+        return Krita.instance().activeDocument() is None
+
+    def getManagedColor(px):
+        if (UI.colorProfile() == "RGB"):
+            myColor = ManagedColor("RGBA", UI.colorDepth(), "")
+            colorComponents = myColor.components()
+            colorComponents[0] = px.blueF()
+            colorComponents[1] = px.greenF()
+            colorComponents[2] = px.redF()
+            colorComponents[3] = px.alphaF()
+        else:
+            myColor = ManagedColor("CMYKA", UI.colorDepth(), "")
+            colorComponents = myColor.components()
+            colorComponents[0] = px.cyanF()
+            colorComponents[1] = px.magentaF()
+            colorComponents[2] = px.yellowF()
+            colorComponents[3] = px.blackF()
+            colorComponents[4] = px.alphaF()
+        
+        myColor.setComponents(colorComponents)
+        return(myColor)
+
     def renderColorsMap(fileName, areaSize):
         map = list()
         fileContent = FILE.open(fileName)
-        W = areaSize.width() - 16
-        H = areaSize.height() - 16
+        W = areaSize.width() - SYS.config["scrollSize"]
+        H = areaSize.height() - SYS.config["scrollSize"]
 
-        cols = math.floor(W / 42)
+        cols = math.floor(W / SYS.config["colorSize"])
         rows = 0
         colors = 0
         titles = 0
         for index, line in enumerate(fileContent):
-            if (UI.lineIsColor(line)):
+            if (SYS.lineIsColor(line)):
 
                 colors += 1
 
-            elif (UI.lineIsTitle(line)):
+            elif (SYS.lineIsTitle(line)):
 
                 titles += 1
                 if (colors > 0):
@@ -97,41 +171,41 @@ class UI:
         counter = 0
         x = 0
         y = 0
-        areaW = cols * 42
-        areaH = (titles * 24) + (rows * 42)
+        areaW = cols * SYS.config["colorSize"]
+        areaH = (titles * SYS.config["titleSize"]) + (rows * SYS.config["colorSize"])
 
         pixmap = QPixmap(areaW, areaH)
         pixmap.fill(Qt.transparent)
         painter = QPainter(pixmap)
 
         for index, line in enumerate(fileContent):
-            if (UI.lineIsColor(line)):
+            if (SYS.lineIsColor(line)):
 
                 data = line.split("|")
                 painter = UI.drawColor(painter, data, x, y)
-                map.append(str(index) + "|C|" + str(x) + "|" + str(y) + "|42|42")
+                map.append(str(index) + "|C|" + str(x) + "|" + str(y) + "|" + str(SYS.config["colorSize"]) + "|" + str(SYS.config["colorSize"]))
 
                 counter += 1
 
                 if (counter < cols):                    
-                    x += 42
+                    x += SYS.config["colorSize"]
                 else:
                     counter = 0
                     x = 0
-                    y += 42
+                    y += SYS.config["colorSize"]
 
-            elif (UI.lineIsTitle(line)):
+            elif (SYS.lineIsTitle(line)):
 
                 if (index > 0):
                     x = 0
-                    y += 42
-                    if (counter == 0): y -= 42
+                    y += SYS.config["colorSize"]
+                    if (counter == 0): y -= SYS.config["colorSize"]
 
                 UI.drawTitle(painter, line, x, y, areaW)
-                map.append(str(index) + "|T|" + str(x) + "|" + str(y) + "|" + str(areaW) + "|24")
+                map.append(str(index) + "|T|" + str(x) + "|" + str(y) + "|" + str(areaW) + "|" + str(SYS.config["titleSize"]))
                 counter = 0
                 x = 0
-                y += 24
+                y += SYS.config["titleSize"]
 
         painter.end()
 
@@ -141,7 +215,7 @@ class UI:
         return d
         pass
 
-    def drawColor(painter, data, x, y, size = 42):
+    def drawColor(painter, data, x, y):
 
         colorName = data[0]
         colorB = float(data[1])
@@ -160,14 +234,14 @@ class UI:
 
         painter.setBrush(QBrush(qColor, Qt.SolidPattern))
         painter.setPen(QPen(Qt.black, 1, Qt.SolidLine))
-        painter.drawRect(x, y, size, size)
+        painter.drawRect(x, y, SYS.config["colorSize"], SYS.config["colorSize"])
 
         if (colorName == "RGB"):
             colorName = str(qColor.red()) + "  " + \
                 str(qColor.green()) + "  " + str(qColor.blue())
 
         font = painter.font()
-        font.setPixelSize(10)
+        font.setPixelSize(SYS.config["colorFontSize"])
         painter.setFont(font)
 
         if (useBlack > 0.150):
@@ -175,7 +249,7 @@ class UI:
         else:
             painter.setPen(QPen(Qt.white, 1))
 
-        rectangle = QRect(x + 2, y, 42 - 4, 42 - 4)
+        rectangle = QRect(x + 2, y, SYS.config["colorSize"] - 4, SYS.config["colorSize"] - 4)
         boundingRect = QRect()
         painter.drawText(rectangle, Qt.TextWordWrap, colorName)
 
@@ -185,24 +259,16 @@ class UI:
     def drawTitle(painter, data, x, y, w):
         painter.setPen(QPen(Qt.black, 1))
         painter.setBrush(QBrush(Qt.black, Qt.SolidPattern))
-        painter.drawRect(x, y, w, 24)
+        painter.drawRect(x, y, w, SYS.config["titleSize"])
 
         font = painter.font()
-        font.setPixelSize(16)
+        font.setPixelSize(SYS.config["titleFontSize"])
         painter.setFont(font)
         painter.setPen(QPen(Qt.white, 1))
         painter.drawText(x + 8, y + 18, data)
 
         return painter
         pass
-
-    def lineIsColor(line):
-        if (line == ""): return False
-        return (line.find("#") != 0 and line.find("|") > 0)
-
-    def lineIsTitle(line):
-        if (line == ""): return False
-        return (line.find("#") < 0 and line.find("|") < 0)
 
     def renderTempMap(map, areaSize):
         size = 16
