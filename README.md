@@ -66,11 +66,11 @@ I'm a comic artist, so I have to apply the same colors on different pages. Krita
 
 #### WHAT'S NEW
 
-#### 1.0
+#### 1.0 (24/06/2022)
  - Krita document and Colors Map are now connected through a dedicated annotation.
  - Added the "left click" + CTRL action for renaming the clicked Color or Group Title.
  - The new "Settings" button allows to change the Colors size and the size of their names.
  - Support for RGB and CMYK color profiles.
 
-#### 0.1
+#### 0.1 (22/06/2022)
 Initial release
