@@ -62,3 +62,15 @@ Click the [?] button to show the inline manual with all the features explained.
 #### WHY THIS PLUGIN
 
 I'm a comic artist, so I have to apply the same colors on different pages. Krita is fantastic software for the flattening process, but personally I find the color management system unsuitable for the flexibility and speed I would like. For this reason, I created a plugin that offered what I need, such as organizing colors quickly, easily seeing the name of a color and so on.
+
+
+#### WHAT'S NEW
+
+#### 1.0
+ - Krita document and Colors Map are now connected through a dedicated annotation.
+ - Added the "left click" + CTRL action for renaming the clicked Color or Group Title.
+ - The new "Settings" button allows to change the Colors size and the size of their names.
+ - Support for RGB and CMYK color profiles.
+
+#### 0.1
+Initial release
