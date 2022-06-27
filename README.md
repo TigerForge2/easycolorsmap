@@ -52,7 +52,7 @@ Adding and selecting colors here use the same logic of the Colors Map (but this 
 
 #### POPUP PALETTE
 
-You can easily use your palette by right clicking on your Krita document with the SHIFT button pressed.
+You can easily access your palette by right clicking on your Krita document with the SHIFT button pressed.
 
 ![preview](https://i.ibb.co/Fh0T1yr/schema-6.png)
 
