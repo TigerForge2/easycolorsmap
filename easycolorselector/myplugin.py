@@ -10,13 +10,14 @@ from .CONFIG import *
 from .EDITOR import *
 from .HELP import *
 from .SYS import *
+from .POPUP import *
 import math
 
 class MyDocker(DockWidget):
 
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("TF Easy Colors Map")
+        self.setWindowTitle("TF Easy Colors Map v." + SYS.getVersionString())
         mainWidget = QWidget(self)
         self.setWidget(mainWidget)
         self.fileName = ""
@@ -26,14 +27,17 @@ class MyDocker(DockWidget):
         self.guide = HELP()
         self.editor = EDITOR()
         self.editor.closeEvent = self.editClose
+        self.popup = POPUP()
         self.selColor = Qt.black
         self.tempColors = list()
         self.map = list()
+        self.myKritaCanvas = None
 
         appNotifier  = Krita.instance().notifier()
         appNotifier.setActive(True)
         appNotifier.viewClosed.connect(self.viewClosedEvent)
         appNotifier.viewCreated.connect(self.viewOpenedEvent)
+        appNotifier.applicationClosing.connect(self.onAppClose)
         
         openButton = UI.toolBt('document-open', self.fileOpen, "OPEN MAP\nLoad an existing Colors Map or create a new one.")
         editButton = UI.toolBt('document-edit', self.edit, "MAP EDITOR\nEdit the current Colors Map.")
@@ -57,7 +61,6 @@ class MyDocker(DockWidget):
             ])
 
         self.colorsMap = QLabel(mainWidget)
-        self.colorsMap.setAlignment(Qt.AlignTop | Qt.AlignLeft)
         self.colorsMap.mousePressEvent = self.onColorsMapClick
         self.colorsMap.setCursor(UI.getCursor('krita_tool_color_sampler'))
         self.colorsMapImage = QImage()
@@ -117,11 +120,25 @@ class MyDocker(DockWidget):
         self.timerDocOpened = QTimer()
         self.timerDocOpened.timeout.connect(self.getAnnotation)
 
-    def onWindowResize(self):
+    def onWindowResize(self):        
         if (self.windowSize != self.scrollArea.size()):
             self.windowSize = self.scrollArea.size()
             if (self.fileSize > 0): self.renderFile()
         pass
+
+    def eventFilter(self, object, event):
+        if event.type() == QEvent.MouseButtonPress:
+            if event.button() == Qt.RightButton and event.modifiers() == Qt.ShiftModifier:
+                qwindow = Krita.instance().activeWindow().qwindow()
+                target_qobj = qwindow.findChild(QToolButton, "KritaShape/KisToolBrush")
+                if (target_qobj.isChecked()):
+                    c = UI.get_my_canvas(self.myKritaCanvas["canvas"])
+                    pos = c["globalPos"]
+                    self.popup.read(self.fileName)
+                    self.popup.show()
+                    self.popup.move(pos.x(), pos.y())
+
+        return super().eventFilter(object, event)
 
     def viewClosedEvent(self):
         self.fileName = ""
@@ -134,13 +151,19 @@ class MyDocker(DockWidget):
         pixmap.fill(Qt.transparent)
         self.colorsMap.setPixmap(pixmap)
         self.tempMap.setPixmap(pixmap)
+        self.onAppClose()
 
     def viewOpenedEvent(self):
         self.timerDocOpened.start(1000)
 
     def getAnnotation(self):
         fileName = UI.getAnnotation()
-        if (fileName != ""): self.fileOpenByName(fileName)
+        if (fileName != ""): 
+            self.fileOpenByName(fileName)
+        else:
+            self.colorsMap.setText("Click here (or the [OPEN MAP] button below)\nto open an existing Colors Map\nor create a new one.")
+            self.colorsMap.setAlignment(Qt.AlignCenter)
+
         self.timerDocOpened.stop()
 
     def fileOpen(self):
@@ -159,9 +182,13 @@ class MyDocker(DockWidget):
             else:
                 SYS.initMap(self.fileName)
 
+            self.colorsMap.setAlignment(Qt.AlignTop | Qt.AlignLeft)
             self.fileSize = UI.getFileSize(self.fileName)
             self.renderFile()
             UI.setAnnotation(self.fileName)
+
+            self.myKritaCanvas = UI.get_my_canvas()
+            if (not self.myKritaCanvas["canvas"] is None): self.myKritaCanvas["canvas"].installEventFilter(self)
 
     def autoColorAcquisition(self):
         if (self.noKritaDoc()): return
@@ -189,6 +216,9 @@ class MyDocker(DockWidget):
 
     def onColorsMapClick(self, event):
         if (self.noKritaDoc()): return
+        if (self.fileName == "" and self.fileSize == 0):
+            self.fileOpen()
+            return
 
         modifierPressed = QApplication.keyboardModifiers()
         isShift = (modifierPressed & Qt.ShiftModifier)
@@ -233,6 +263,9 @@ class MyDocker(DockWidget):
 
     def onTempMapClick(self, event):
         if (self.noKritaDoc()): return
+        if (self.fileName == "" and self.fileSize == 0):
+            self.fileOpen()
+            return
 
         modifierPressed = QApplication.keyboardModifiers()
         isShift = (modifierPressed & Qt.ShiftModifier)
@@ -392,6 +425,12 @@ class MyDocker(DockWidget):
 
     def canvasChanged(self, canvas):
         pass
+
+    def onAppClose(self):
+        self.popup.close()
+        self.settings.close()
+        self.guide.close()
+        self.editor.close()
 
 Krita.instance().addDockWidgetFactory(DockWidgetFactory(
     "myColorDocker", DockWidgetFactoryBase.DockRight, MyDocker))

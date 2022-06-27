@@ -212,6 +212,9 @@ class UI:
         d = dict()
         d["pixmap"] = pixmap
         d["map"] = map
+        d["cols"] = cols
+        d["rows"] = rows
+        d["titles"] = titles
         return d
         pass
 
@@ -291,3 +294,50 @@ class UI:
         painter.end()
         return pixmap
         pass
+
+    def find_current_canvas():
+        try:
+            app = Krita.instance()
+            q_window = app.activeWindow().qwindow()
+            q_stacked_widget = q_window.centralWidget()
+            q_mdi_area = q_stacked_widget.currentWidget()
+            q_mdi_sub_window = q_mdi_area.currentSubWindow()
+            view = q_mdi_sub_window.widget()
+            for c in view.children():
+                if c.metaObject().className() == 'KisCanvasController':
+                    viewport = c.viewport()
+                    canvas = viewport.findChild(QWidget)
+                    return canvas
+            return None
+        except:
+            return None
+
+    def get_my_canvas(myCanvas = None):
+        if (myCanvas is None):
+            canvas = UI.find_current_canvas()
+        else:
+            canvas = myCanvas
+
+        if (not canvas is None):
+            global_pos = QCursor.pos()
+            pos = QPoint(canvas.mapFromGlobal(global_pos))
+            if (pos.x() < 0 or pos.y() < 0 or pos.x() > canvas.width() or pos.y() > canvas.height()):
+                return { "canvas": canvas, "x": 0, "y": 0, "isInside": False, "globalPos": global_pos }
+            else:
+                return { "canvas": canvas, "x": pos.x(), "y": pos.y(), "isInside": True, "globalPos": global_pos }
+        return { "canvas": None, "x": 0, "y": 0, "isInside": False, "globalPos": None }
+
+    def dump_tree(self,qobj):
+        #qwindow = Krita.instance().activeWindow().qwindow()
+        #self.dump_tree(qwindow)
+        stack = [(qobj, 0)]
+        while stack:
+            cursor, depth = stack.pop(-1)  # depth first
+            indent = depth * "  "
+            cls_name = type(cursor).__name__
+            meta_cls_name = cursor.metaObject().className()
+            obj_name = cursor.objectName()
+            ALERT.log(f"{indent}cls: {cls_name}, meta_cls_name: {meta_cls_name}, obj_name: {obj_name!r}")
+            stack.extend((c, depth +1) for c in cursor.children())
+    
+

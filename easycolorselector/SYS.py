@@ -8,7 +8,7 @@ class SYS:
         super().__init__()
 
     def currentVersion():
-        return 10
+        return 11
 
     @property
     def config(self):
@@ -29,7 +29,7 @@ class SYS:
             update = True
         else:
             SYS.config = json.loads(firstLine)
-            if (SYS.config["version"] < SYS.currentVersion()): update = True
+            #if (SYS.config["version"] < SYS.currentVersion()): update = True
 
         if (update):
             ALERT.info("COLORS MAP UPDATE", "I'm going to update your Colors Map to the " + SYS.getVersionString() + " version of 'TF Easy Colors Map'.")
