@@ -353,7 +353,8 @@ class UI:
             "KisToolPolygon",
             "KisToolPencil",
             "KritaFill/KisToolFill",
-            "KritaFill/KisToolGradient"
+            "KritaFill/KisToolGradient",
+            "KritaShape/KisToolLazyBrush"
             ]
         qwindow = Krita.instance().activeWindow().qwindow()
 
