@@ -73,7 +73,7 @@ I'm a comic artist, so I have to apply the same colors on different pages. Krita
 #### WHAT'S NEW
 
 #### 1.1 (27/06/2022)
- - The "Easy Colors Map" palette is now available as a "pop-up palette" doing right-click + SHIFT on the Krita document. At the moment, it works only with the "Freehand brush".
+ - The "Easy Colors Map" palette is now available as a "pop-up palette" doing right-click + SHIFT on the Krita document.
  - Some improvements and bug fix
 
 #### 1.0 (24/06/2022)
