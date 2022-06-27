@@ -50,6 +50,12 @@ Adding and selecting colors here use the same logic of the Colors Map (but this 
  - **left** click a color to select it as foreground color (+ **SHIFT** as background color)
 
 
+#### POPUP PALETTE
+
+You can easily use your palette by right clicking on your Krita document with the SHIFT button pressed.
+
+![preview](https://i.ibb.co/Fh0T1yr/schema-6.png)
+
 #### YOUR KRITA DOCUMENT AND COLORS MAP ARE CONNECTED!
 
 When you create a Colors Map, it's connected to your Krita document. This means that when you open your Krita document, your Colors Map will be automatically loaded.
