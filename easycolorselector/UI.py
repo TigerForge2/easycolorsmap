@@ -340,4 +340,25 @@ class UI:
             ALERT.log(f"{indent}cls: {cls_name}, meta_cls_name: {meta_cls_name}, obj_name: {obj_name!r}")
             stack.extend((c, depth +1) for c in cursor.children())
     
+    def kritaDrawingToolSelected():
+        tools = [
+            "KritaShape/KisToolMultiBrush",
+            "KritaShape/KisToolLine",
+            "KritaShape/KisToolBrush",
+            "KisToolPolyline",
+            "KritaShape/KisToolRectangle",
+            "KritaShape/KisToolDyna",
+            "KisToolPath",
+            "KritaShape/KisToolEllipse",
+            "KisToolPolygon",
+            "KisToolPencil",
+            "KritaFill/KisToolFill",
+            "KritaFill/KisToolGradient"
+            ]
+        qwindow = Krita.instance().activeWindow().qwindow()
 
+        for item in tools:
+            target_qobj = qwindow.findChild(QToolButton, item)
+            if (target_qobj.isChecked()): return True
+
+        return False

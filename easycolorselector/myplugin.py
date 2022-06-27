@@ -129,9 +129,7 @@ class MyDocker(DockWidget):
     def eventFilter(self, object, event):
         if event.type() == QEvent.MouseButtonPress:
             if event.button() == Qt.RightButton and event.modifiers() == Qt.ShiftModifier:
-                qwindow = Krita.instance().activeWindow().qwindow()
-                target_qobj = qwindow.findChild(QToolButton, "KritaShape/KisToolBrush")
-                if (target_qobj.isChecked()):
+                if (UI.kritaDrawingToolSelected()):
                     c = UI.get_my_canvas(self.myKritaCanvas["canvas"])
                     pos = c["globalPos"]
                     self.popup.read(self.fileName)
