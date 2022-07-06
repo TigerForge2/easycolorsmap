@@ -60,6 +60,10 @@ You can easily access your palette by right clicking on your Krita document with
 
 When you create a Colors Map, it's connected to your Krita document. This means that when you open your Krita document, your Colors Map will be automatically loaded.
 
+#### RGB & CMYK SUPPORTED
+
+From this plugin point of view, a color is just a color. You can work with RGB and CMYK Krita documents without any particular precaution. You can even use the same Colors Map both in RGB and CMYK documents. 
+
 #### INLINE HELP MANUAL
 
 Click the [?] button to show the inline manual with all the features explained.
