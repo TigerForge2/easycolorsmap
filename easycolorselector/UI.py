@@ -73,12 +73,10 @@ class UI:
         try:
             activeView = Krita.instance().activeWindow().activeView()
             fColor = activeView.foregroundColor().components()
-            qColor = QColor()
-            qColor.setBlueF(fColor[0])
-            qColor.setGreenF(fColor[1])
-            qColor.setRedF(fColor[2])
-            qColor.setAlphaF(fColor[3])
-            return qColor
+            if (UI.colorProfile() == "RGB"):
+                return QColor.fromRgbF(fColor[2], fColor[1], fColor[0], fColor[3])
+            else:
+                return QColor.fromCmykF(fColor[0], fColor[1], fColor[2], fColor[3], fColor[4])
         except:
             return None
 
