@@ -81,6 +81,9 @@ I'm a comic artist, so I have to apply the same colors on different pages. Krita
 
 #### WHAT'S NEW
 
+#### 1.4 (08/07/2022)
+ - Colors Groups can be opened and closed (collapsed) clicking the icon on the right.
+
 #### 1.2 (06/07/2022)
  - Resolved an issue when adding a new color from CMYK Krita documents. 
 
