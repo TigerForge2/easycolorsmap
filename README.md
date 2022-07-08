@@ -45,7 +45,7 @@ Just click the [+] / [-] icon on the right of each Groups title to open and clos
 
 #### TEMPORARY COLORS (SECONDARY PALETTE)
 
-If you need to use a color, but you don't need to have it saved into your Colors Map, you can use the "secondary" palette placed above the Colors Map. 
+If you need to use a color, but you don't need to have it saved into your Colors Map, you can use the "secondary" palette placed under the Colors Map. 
 
 ![preview](https://i.ibb.co/Lrs2hK7/schema4.jpg)
 
