@@ -227,20 +227,31 @@ class MyDocker(DockWidget):
 
         x = event.pos().x() - 8
         y = event.pos().y() + 8
+        eType = self.getClickedType(x, y)
 
         if (leftClick):
-            px = self.colorsMapImage.pixelColor(x, y)
-            if (not modifierPressed):
-                self.changeKritaColor(px, 0)
-            elif (isShift):
-                self.changeKritaColor(px, 1)
-            elif (isCtrl):
+            if (eType == "C"):
                 px = self.colorsMapImage.pixelColor(x, y)
-                if (px.alpha() != 0):
-                    itemIndex = self.getColorIndex(x, y)
+                if (not modifierPressed):
+                    self.changeKritaColor(px, 0)
+                elif (isShift):
+                    self.changeKritaColor(px, 1)
+
+            if (eType == "T"):
+                if (self.isClickedCollapse(x, y)):
+                    itemIndex = self.getClickedItemIndex(x, y)
                     if (itemIndex >= 0): 
-                        FILE.executeAction("[RENAME]", self.contextMenuItems, itemIndex, self.fileName)
+                        FILE.executeAction("[COLLAPSE]", self.contextMenuItems, itemIndex, self.fileName)
                         self.renderFile()
+
+            if (eType == "C" or eType == "T"):
+                if (isCtrl):
+                    px = self.colorsMapImage.pixelColor(x, y)
+                    if (px.alpha() != 0):
+                        itemIndex = self.getClickedItemIndex(x, y)
+                        if (itemIndex >= 0): 
+                            FILE.executeAction("[RENAME]", self.contextMenuItems, itemIndex, self.fileName)
+                            self.renderFile()
 
         if (rightClick):
             if (not modifierPressed):
@@ -251,7 +262,7 @@ class MyDocker(DockWidget):
             elif(isCtrl):
                 px = self.colorsMapImage.pixelColor(x, y)
                 if (px.alpha() != 0):
-                    itemIndex = self.getColorIndex(x, y)
+                    itemIndex = self.getClickedItemIndex(x, y)
                     if (itemIndex >= 0): 
                         action = self.contextMenu.exec_(self.mapToGlobal(event.pos()))
                         FILE.executeAction(action, self.contextMenuItems, itemIndex, self.fileName)
@@ -365,7 +376,7 @@ class MyDocker(DockWidget):
             ALERT.warn("ATTENTION", "There is not a Colors Map file yet.")
             return
 
-        itemIndex = self.getColorIndex(x, y)
+        itemIndex = self.getClickedItemIndex(x, y)
         if (itemIndex >= 0):
             newColor = UI.getForegroundQColor()
 
@@ -381,7 +392,7 @@ class MyDocker(DockWidget):
 
         pass
 
-    def getColorIndex(self, x, y):
+    def getClickedItemIndex(self, x, y):
         for index, item in enumerate(self.map):
             tmp = item.split("|")
             itemIndex = int(tmp[0])
@@ -397,6 +408,44 @@ class MyDocker(DockWidget):
             if (x >= X1 and x <= X2 and y >= Y1 and y <= Y2): return itemIndex
 
         return -1
+        pass
+
+    def getClickedType(self, x, y):
+        for index, item in enumerate(self.map):
+            tmp = item.split("|")
+            itemType = tmp[1]
+            X1 = int(tmp[2])
+            Y1 = int(tmp[3])
+            itemW = int(tmp[4])
+            itemH = int(tmp[5])
+            
+            X2 = X1 + itemW
+            Y2 = Y1 + itemH
+
+            if (x >= X1 and x <= X2 and y >= Y1 and y <= Y2): return itemType
+
+        return ""
+        pass
+
+    def isClickedCollapse(self, x, y):
+        for index, item in enumerate(self.map):
+            tmp = item.split("|")
+            itemType = tmp[1]
+            X1 = int(tmp[2])
+            Y1 = int(tmp[3])
+            itemW = int(tmp[4])
+            itemH = int(tmp[5])
+
+            X1 = itemW - SYS.config["titleSize"] + 2
+            Y1 = Y1 + 4
+            expS = SYS.config["titleSize"] - 4 - 4
+            
+            X2 = X1 + expS
+            Y2 = Y1 + expS
+
+            if (x >= X1 and x <= X2 and y >= Y1 and y <= Y2): return True
+
+        return False
         pass
 
     def noKritaDoc(self):

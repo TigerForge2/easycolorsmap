@@ -8,7 +8,7 @@ class SYS:
         super().__init__()
 
     def currentVersion():
-        return 12
+        return 14
 
     @property
     def config(self):
@@ -24,14 +24,14 @@ class SYS:
     def checkVersion(fileName):
         fileContent = SYS.open(fileName)
         firstLine = fileContent[0]
-        update = False
+        updateReleaseZero = False
         if (firstLine.find("TF_ECM_FILE") < 0):
-            update = True
+            updateReleaseZero = True
         else:
             SYS.config = json.loads(firstLine)
             #if (SYS.config["version"] < SYS.currentVersion()): update = True
 
-        if (update):
+        if (updateReleaseZero):
             ALERT.info("COLORS MAP UPDATE", "I'm going to update your Colors Map to the " + SYS.getVersionString() + " version of 'TF Easy Colors Map'.")
             SYS.config = { "version": SYS.currentVersion(), "colorSize": 42, "titleSize" : 24, "colorFontSize": 10, "titleFontSize": 16, "type": "RGB", "scrollSize": 16, "id": "TF_ECM_FILE" }
             fileContent.insert(0, json.dumps(SYS.config) + "\n")

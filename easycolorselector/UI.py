@@ -175,9 +175,10 @@ class UI:
         pixmap = QPixmap(areaW, areaH)
         pixmap.fill(Qt.transparent)
         painter = QPainter(pixmap)
+        wasCollapsed = False
 
         for index, line in enumerate(fileContent):
-            if (SYS.lineIsColor(line)):
+            if (SYS.lineIsColor(line) and not wasCollapsed):
 
                 data = line.split("|")
                 painter = UI.drawColor(painter, data, x, y)
@@ -204,6 +205,7 @@ class UI:
                 counter = 0
                 x = 0
                 y += SYS.config["titleSize"]
+                wasCollapsed = (line.find(">") == 0)
 
         painter.end()
 
@@ -262,11 +264,28 @@ class UI:
         painter.setBrush(QBrush(Qt.black, Qt.SolidPattern))
         painter.drawRect(x, y, w, SYS.config["titleSize"])
 
+        expX = w - SYS.config["titleSize"] + 2
+        expY = y + 4
+        expS = SYS.config["titleSize"] - 4 - 4
+        painter.setPen(QPen(Qt.gray, 1))
+        painter.setBrush(QBrush(Qt.black, Qt.SolidPattern))
+        painter.drawRect(expX, expY, expS, expS)
+
+        expIcon = ""
+        offset = 3
+        if (data.find(">") == 0):
+            data = data[1:]
+            expIcon = "+"
+        else:    
+            expIcon = "-"
+            offset = 5
+
         font = painter.font()
         font.setPixelSize(SYS.config["titleFontSize"])
         painter.setFont(font)
         painter.setPen(QPen(Qt.white, 1))
         painter.drawText(x + 8, y + 18, data)
+        painter.drawText(expX + offset, expY + 13, expIcon)
 
         return painter
         pass

@@ -137,6 +137,14 @@ class FILE:
             FILE.saveList(fileName, fileContent)
             pass
 
+        elif (menu == "[COLLAPSE]"):
+            if (fileContent[index].find(">") == 0):
+                fileContent[index] = fileContent[index][1:]
+            else:    
+                fileContent[index] = ">" + fileContent[index]
+            FILE.saveList(fileName, fileContent)
+            pass
+
     def isCutIndexValid():
         if (SYS.isProperty(FILE.cutItemIndex)):
             return False
