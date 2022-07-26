@@ -32,12 +32,14 @@ class MyDocker(DockWidget):
         self.tempColors = list()
         self.map = list()
         self.myKritaCanvas = None
+        self.window = None
 
         appNotifier  = Krita.instance().notifier()
         appNotifier.setActive(True)
         appNotifier.viewClosed.connect(self.viewClosedEvent)
         appNotifier.viewCreated.connect(self.viewOpenedEvent)
         appNotifier.applicationClosing.connect(self.onAppClose)
+        appNotifier.windowCreated.connect(self.windowReady)
         
         openButton = UI.toolBt('document-open', self.fileOpen, "OPEN MAP\nLoad an existing Colors Map or create a new one.")
         editButton = UI.toolBt('document-edit', self.edit, "MAP EDITOR\nEdit the current Colors Map.")
@@ -61,9 +63,10 @@ class MyDocker(DockWidget):
             ])
 
         self.colorsMap = QLabel(mainWidget)
-        self.colorsMap.mousePressEvent = self.onColorsMapClick
         self.colorsMap.setCursor(UI.getCursor('krita_tool_color_sampler'))
         self.colorsMapImage = QImage()
+        self.colorsMap.mousePressEvent = self.onColorsMapClick
+
 
         self.tempMap = QLabel(mainWidget)
         self.tempMap.setAlignment(Qt.AlignTop | Qt.AlignLeft)
@@ -83,7 +86,6 @@ class MyDocker(DockWidget):
 
         self.colorLabel = QLabel(mainWidget)
         self.colorLabel.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
-
 
         mainLayout = QVBoxLayout()
         mainLayout.setSpacing(0)
@@ -120,6 +122,13 @@ class MyDocker(DockWidget):
         self.timerDocOpened = QTimer()
         self.timerDocOpened.timeout.connect(self.getAnnotation)
 
+    def windowReady(self):
+        self.window = Krita.instance().activeWindow()
+        self.window.activeViewChanged.connect(self.onActiveViewChanged)
+
+    def onActiveViewChanged(self):
+        self.getAnnotation()
+
     def onWindowResize(self):        
         if (self.windowSize != self.scrollArea.size()):
             self.windowSize = self.scrollArea.size()
@@ -150,18 +159,22 @@ class MyDocker(DockWidget):
         self.colorsMap.setPixmap(pixmap)
         self.tempMap.setPixmap(pixmap)
         self.onAppClose()
+        if (len(self.window.views()) > 1): self.getAnnotation()
 
     def viewOpenedEvent(self):
         self.timerDocOpened.start(1000)
 
     def getAnnotation(self):
+        self.fileName = ""
+        self.fileSize = 0
         fileName = UI.getAnnotation()
         if (fileName != ""): 
             self.fileOpenByName(fileName)
         else:
             self.colorsMap.setText("Click here (or the [OPEN MAP] button below)\nto open an existing Colors Map\nor create a new one.")
             self.colorsMap.setAlignment(Qt.AlignCenter)
-
+            self.colorsMap.mousePressEvent = self.onColorsMapClick
+        
         self.timerDocOpened.stop()
 
     def fileOpen(self):

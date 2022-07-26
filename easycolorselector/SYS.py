@@ -8,7 +8,7 @@ class SYS:
         super().__init__()
 
     def currentVersion():
-        return 14
+        return 15
 
     @property
     def config(self):
