@@ -82,7 +82,7 @@ I'm a comic artist, so I have to apply the same colors on different pages. Krita
 #### WHAT'S NEW
 
 #### 1.5 (26/07/2022)
- - Resolved an annoying issue when switching among more opened Krita documents. The Colors Map weren't loaded properly on document change.
+ - Resolved an annoying issue when switching among more opened Krita documents. The Colors Map wasn't loaded properly on document change.
 
 #### 1.4 (08/07/2022)
  - Colors Groups can be opened and closed (collapsed) clicking the icon on the right.
