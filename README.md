@@ -1,6 +1,6 @@
 # TF Easy Colors Map (Krita plugin)
 
-#### Current version: 1.5 (26/07/2022)
+#### Current version: 1.6 (27/07/2022)
 
 #### WHAT IS
 TF Easy Colors Map is a plugin for Krita for creating a Map (a collection) of your favourite colors in a very simple way. The final result of your Map can be something like this:
@@ -81,6 +81,9 @@ I'm a comic artist, so I have to apply the same colors on different pages. Krita
 
 #### WHAT'S NEW
 
+#### 1.6 (27/07/2022)
+ - When right click + CTRL, the popup menu was positioned in a wrong place scrolling down the Colors Map.
+ 
 #### 1.5 (26/07/2022)
  - Resolved an annoying issue when switching among more opened Krita documents. The Colors Map wasn't loaded properly on document change.
 
