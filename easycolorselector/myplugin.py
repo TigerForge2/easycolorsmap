@@ -277,7 +277,7 @@ class MyDocker(DockWidget):
                 if (px.alpha() != 0):
                     itemIndex = self.getClickedItemIndex(x, y)
                     if (itemIndex >= 0): 
-                        action = self.contextMenu.exec_(self.mapToGlobal(event.pos()))
+                        action = self.contextMenu.exec_(event.globalPos())
                         FILE.executeAction(action, self.contextMenuItems, itemIndex, self.fileName)
                         self.renderFile()
 
