@@ -85,6 +85,7 @@ I'm a comic artist, so I have to apply the same colors on different pages. Krita
 
 #### 1.7 (01/09/2022)
  - The colors in the Colors Map are now shown correctly when using the same Map in both RGB and CMYK documents.
+ - In the Krita's "Python Plugin Manager" now the plugin appears with the correct name (TF Easy Colors Map).
 
 #### 1.6 (27/07/2022)
  - When right click + CTRL, the popup menu was positioned in a wrong place scrolling down the Colors Map.
