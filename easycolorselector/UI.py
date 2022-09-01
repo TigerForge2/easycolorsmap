@@ -139,6 +139,18 @@ class UI:
         myColor.setComponents(colorComponents)
         return(myColor)
 
+    def createCMYK(c, m, y, k):
+        myColor = ManagedColor("CMYKA", UI.colorDepth(), "")
+        colorComponents = myColor.components()
+        colorComponents[0] = c
+        colorComponents[1] = m
+        colorComponents[2] = y
+        colorComponents[3] = k
+        colorComponents[4] = 1
+        myColor.setComponents(colorComponents)
+        canvas =  Krita.instance().activeWindow().activeView().canvas()
+        return(myColor.colorForCanvas(canvas))
+
     def renderColorsMap(fileName, areaSize):
         map = list()
         fileContent = FILE.open(fileName)
@@ -234,6 +246,13 @@ class UI:
         qColor.setGreenF(colorG)
         qColor.setRedF(colorR)
         qColor.setAlphaF(colorA)
+
+        if (UI.colorProfile() == "CMYK"):
+            colorC = qColor.cyanF()
+            colorM = qColor.magentaF()
+            colorY = qColor.yellowF()
+            colorK = qColor.blackF()
+            qColor = UI.createCMYK(colorC, colorM, colorY, colorK)
 
         painter.setBrush(QBrush(qColor, Qt.SolidPattern))
         painter.setPen(QPen(Qt.black, 1, Qt.SolidLine))

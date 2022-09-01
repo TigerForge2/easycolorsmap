@@ -67,7 +67,6 @@ class MyDocker(DockWidget):
         self.colorsMapImage = QImage()
         self.colorsMap.mousePressEvent = self.onColorsMapClick
 
-
         self.tempMap = QLabel(mainWidget)
         self.tempMap.setAlignment(Qt.AlignTop | Qt.AlignLeft)
         self.tempMap.mousePressEvent = self.onTempMapClick
@@ -491,6 +490,9 @@ class MyDocker(DockWidget):
         self.settings.close()
         self.guide.close()
         self.editor.close()
+
+    def testCode(self):
+        pass
 
 Krita.instance().addDockWidgetFactory(DockWidgetFactory(
     "myColorDocker", DockWidgetFactoryBase.DockRight, MyDocker))
