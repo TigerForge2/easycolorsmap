@@ -67,7 +67,7 @@ When you create a Colors Map, it's connected to your Krita document. This means 
 
 #### RGB & CMYK SUPPORT
 
-This plugin supports Krita's documents with RGB (RGB/Alpha) and CMYK (CMYK/Alpha) color profiles. However, in order to avoid issue with colors visualization and selection, it's not possibile to use the same Colors Map with both RGB and CMYK documents. When you create a new Colors Map, the plugin registers the Krita's document color profile inside the Map. From that moment, the Colors Map will be usable only on Krita's document with that specific color profile. 
+This plugin supports Krita's documents with RGB (RGB/Alpha) and CMYK (CMYK/Alpha) color profiles. However, in order to avoid issues with colors visualization and selection, it's not possibile to use the same Colors Map with both RGB and CMYK documents. When you create a new Colors Map, the plugin registers the Krita's document color profile inside the Map. From that moment, the Colors Map will be usable only on Krita's document with that specific color profile. 
 
 #### INLINE HELP MANUAL
 
