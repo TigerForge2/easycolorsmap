@@ -8,7 +8,7 @@ class SYS:
         super().__init__()
 
     def currentVersion():
-        return 17
+        return 18
 
     @property
     def config(self):
@@ -29,18 +29,35 @@ class SYS:
             updateReleaseZero = True
         else:
             SYS.config = json.loads(firstLine)
-            #if (SYS.config["version"] < SYS.currentVersion()): update = True
+            # if (SYS.config["version"] < SYS.currentVersion()): update = True
 
         if (updateReleaseZero):
             ALERT.info("COLORS MAP UPDATE", "I'm going to update your Colors Map to the " + SYS.getVersionString() + " version of 'TF Easy Colors Map'.")
-            SYS.config = { "version": SYS.currentVersion(), "colorSize": 42, "titleSize" : 24, "colorFontSize": 10, "titleFontSize": 16, "type": "RGB", "scrollSize": 16, "id": "TF_ECM_FILE" }
+            SYS.config = { "version": SYS.currentVersion(), "colorSize": 42, "titleSize" : 24, "colorFontSize": 10, "titleFontSize": 16, "type": SYS.colorProfile(), "scrollSize": 16, "id": "TF_ECM_FILE" }
             fileContent.insert(0, json.dumps(SYS.config) + "\n")
             SYS.saveList(fileName, fileContent)
 
-        pass
+    def checkColorProfile(fileName):
+        fileContent = SYS.open(fileName)
+        firstLine = fileContent[0]
+        mapProfile = "RGB"
+        if (firstLine.find("CMYK") > 0): mapProfile = "CMYK"
+        currentProfile = SYS.colorProfile()
+        if (mapProfile != currentProfile): 
+            ALERT.warn("COLORS PROFILE MISMATCH", "This Colors Map contains " + mapProfile + " colors, but you are working with a " + currentProfile + " Krita's document.\n\nUsing a Colors Map with a different color profile is not allowed.\n\nIt is suggested to create or use a Colors Map with a " + currentProfile + " profile.")
+            return False
+        else:
+            return True
+
+    def colorProfile():
+        activeView = Krita.instance().activeDocument()
+        if (activeView.colorModel() == "RGBA"):
+            return "RGB"
+        else:
+            return "CMYK"
 
     def initMap(fileName):
-        SYS.config = { "version": SYS.currentVersion(), "colorSize": 42, "titleSize" : 24, "colorFontSize": 10, "titleFontSize": 16, "type": "RGB", "scrollSize": 16, "id": "TF_ECM_FILE" }
+        SYS.config = { "version": SYS.currentVersion(), "colorSize": 42, "titleSize" : 24, "colorFontSize": 10, "titleFontSize": 16, "type": SYS.colorProfile(), "scrollSize": 16, "id": "TF_ECM_FILE" }
         fileContent = list()
         fileContent.append(json.dumps(SYS.config) + "\n")
         fileContent.append("NEW COLORS MAP\n")

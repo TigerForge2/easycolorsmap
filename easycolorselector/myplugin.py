@@ -189,6 +189,9 @@ class MyDocker(DockWidget):
             self.fileName = FILE.fileTxt(fileName)
             if (FILE.exists(self.fileName)):
                 SYS.checkVersion(self.fileName)
+                if (SYS.checkColorProfile(self.fileName) == False):
+                    self.fileName = ""
+                    return
             else:
                 SYS.initMap(self.fileName)
 
@@ -243,11 +246,11 @@ class MyDocker(DockWidget):
 
         if (leftClick):
             if (eType == "C"):
-                px = self.colorsMapImage.pixelColor(x, y)
+                itemIndex = self.getClickedItemIndex(x, y)
                 if (not modifierPressed):
-                    self.changeKritaColor(px, 0)
+                    self.changeKritaColor(itemIndex, 0)
                 elif (isShift):
-                    self.changeKritaColor(px, 1)
+                    self.changeKritaColor(itemIndex, 1)
 
             if (eType == "T"):
                 if (self.isClickedCollapse(x, y)):
@@ -271,7 +274,7 @@ class MyDocker(DockWidget):
             elif (isShift):
                 px = self.colorsMapImage.pixelColor(x, y)
                 if (px.alpha() != 0): self.insertNewColor(x, y)
-            elif(isCtrl):
+            elif (isCtrl):
                 px = self.colorsMapImage.pixelColor(x, y)
                 if (px.alpha() != 0):
                     itemIndex = self.getClickedItemIndex(x, y)
@@ -299,11 +302,17 @@ class MyDocker(DockWidget):
         y = event.pos().y() + 8
 
         if (leftClick):
-            px = self.tempMapImage.pixelColor(x, y)
+            index = -1
+            if (x >= 0): index = int(x / 16)
+            if (index < 0 or index >= len(self.tempColors)): return
+
+            qColor = self.tempColors[index]
+            myColor = UI.getManagedColorFromQColor(qColor)
+
             if (not modifierPressed):
-                self.changeKritaColor(px, 0)
+                self.setKritaColor(0, myColor)
             elif (isShift):
-                self.changeKritaColor(px, 1)
+                self.setKritaColor(1, myColor)
 
         if (rightClick):
             if (not modifierPressed):
@@ -311,30 +320,54 @@ class MyDocker(DockWidget):
 
         pass
 
-    def changeKritaColor(self, px, type):
-        myColor = UI.getManagedColor(px)
-        if (type == 0): 
-            UI.setForeGroundColor(myColor) 
-        else: 
-            UI.setBackGroundColor(myColor)
+    def changeKritaColor(self, index, type):
+        if (index < 0): return
 
-        self.colorRGBALabel(px)
-        pass
+        fileColor = UI.getColorFromIndex(self.fileName, index)
+        data = fileColor.split("|")
+        myColor = UI.getManagedColor(float(data[1]), float(data[2]), float(data[3]), float(data[4]))
+        self.setKritaColor(type, myColor)
+        
+
+    def setKritaColor(self, type, managedColor):
+        if (type == 0): 
+            UI.setForeGroundColor(managedColor) 
+            self.showColorLabel(UI.getForegroundQColor())
+        else: 
+            UI.setBackGroundColor(managedColor)
+            self.showColorLabel(UI.getBackgroundQColor())
 
     def addNewColor(self):
         newColor = UI.getForegroundQColor()
 
         if (newColor):
-            self.colorRGBALabel(newColor)
-            colorName = ALERT.prompt("NEW COLOR NAME", "Type a short name for this Color:")
+            self.showColorLabel(newColor)
+            colorName = ALERT.prompt("NEW COLOR NAME", "Type a short name for this " + UI.colorProfile() + " Color:")
             if (colorName["ok"]):
-                FILE.save(self.fileName, colorName["value"] + "|" + str(newColor.blueF()) + "|" + str(newColor.greenF()) + "|" + str(newColor.redF()) + "|" + str(newColor.alphaF()) + "|")
+                FILE.save(self.fileName, colorName["value"] + "|" + UI.getColorParams(newColor) + "|")
                 self.fileSize = UI.getFileSize(self.fileName)
                 self.renderFile()
         else:
-            ALERT.warn("ATTENTION", "You have to open a file in Krita first.")
+            ALERT.warn("ATTENTION", "You must have an opened document in Krita first.")
 
-        pass
+    def insertNewColor(self, x, y):
+        if (len(self.map) == 0):
+            ALERT.warn("ATTENTION", "There is not a Colors Map file yet.")
+            return
+
+        itemIndex = self.getClickedItemIndex(x, y)
+        if (itemIndex >= 0):
+            newColor = UI.getForegroundQColor()
+
+            if (newColor):
+                self.showColorLabel(newColor)
+                colorName = ALERT.prompt("NEW COLOR NAME", "Type a short name for this " + UI.colorProfile() + " Color:")
+                if (colorName["ok"]):
+                    FILE.saveToIndex(self.fileName, colorName["value"] + "|" + UI.getColorParams(newColor) + "|", itemIndex + 1)
+                    self.fileSize = UI.getFileSize(self.fileName)
+                    self.renderFile()
+            else:
+                ALERT.warn("ATTENTION", "You must have an opened document in Krita first.")
 
     def addNewTempColor(self):
         newColor = UI.getForegroundQColor()
@@ -342,9 +375,7 @@ class MyDocker(DockWidget):
             self.tempColors.insert(0, newColor)
             self.renderTemp()
         else:
-            ALERT.warn("ATTENTION", "You have to open a file in Krita first.")
-
-        pass
+            ALERT.warn("ATTENTION", "You must have an opened document in Krita first.")
 
     def renderFile(self):
         rendered = UI.renderColorsMap(self.fileName, self.scrollArea.size())
@@ -356,8 +387,8 @@ class MyDocker(DockWidget):
         self.setTempPixmap(UI.renderTempMap(self.tempColors, self.scrollArea.size()))
         pass
 
-    def colorRGBALabel(self, qColor):
-        if (UI.colorProfile() == "RGB"):
+    def showColorLabel(self, qColor):
+        if (UI.isRGB()):
             self.colorLabel.setText("RGB  " + str(qColor.red()) + "  " + str(qColor.green()) + "  " + str(qColor.blue()))
         else:
             self.colorLabel.setText("CMYK  " + str(qColor.cyan()) + "  " + str(qColor.magenta()) + "  " + str(qColor.yellow()) + "  " + str(qColor.black()))
@@ -382,27 +413,6 @@ class MyDocker(DockWidget):
 
     def editClose(self, event):
         self.renderFile()
-
-    def insertNewColor(self, x, y):
-        if (len(self.map) == 0):
-            ALERT.warn("ATTENTION", "There is not a Colors Map file yet.")
-            return
-
-        itemIndex = self.getClickedItemIndex(x, y)
-        if (itemIndex >= 0):
-            newColor = UI.getForegroundQColor()
-
-            if (newColor):
-                self.colorRGBALabel(newColor)
-                colorName = ALERT.prompt("NEW COLOR NAME", "Type a short name for this Color:")
-                if (colorName["ok"]):
-                    FILE.saveToIndex(self.fileName, colorName["value"] + "|" + str(newColor.blueF()) + "|" + str(newColor.greenF()) + "|" + str(newColor.redF()) + "|" + str(newColor.alphaF()) + "|", itemIndex + 1)
-                    self.fileSize = UI.getFileSize(self.fileName)
-                    self.renderFile()
-            else:
-                ALERT.warn("ATTENTION", "You have to open a file in Krita first.")
-
-        pass
 
     def getClickedItemIndex(self, x, y):
         for index, item in enumerate(self.map):

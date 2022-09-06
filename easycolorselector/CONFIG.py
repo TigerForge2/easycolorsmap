@@ -9,13 +9,15 @@ class CONFIG(QWidget):
     def __init__(self):
         super().__init__()
         
-        mainLayout = QVBoxLayout()
-        mainLayout.setSpacing(0)
+        self.mainLayout = QVBoxLayout()
+        self.mainLayout.setSpacing(0)
+        self.t1 = QLineEdit()
+        self.t2 = QLineEdit()
         
         self.fileName = ""
 
         self.setFixedWidth(560)    
-        self.setFixedHeight(240)    
+        #self.setFixedHeight(240)    
         self.setWindowTitle("TF Easy Colors Map » SETTINGS")
 
         l1 = QLabel()
@@ -32,10 +34,7 @@ class CONFIG(QWidget):
         l3 = self.title(l3, "Color Name size")
         l4 = self.desc(l4, "Set the size of the Color name inside a box. Size must be a value from 8 to 14 (10 by default).")
         
-        formLayout = QWidget()
-        fL = QVBoxLayout()
-        fL.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-        formLayout.setLayout(fL)
+        formLayout = UI.createQWidgetLayout("V", Qt.AlignLeft | Qt.AlignTop)
         formLayout.layout().addWidget(l1)
         formLayout.layout().addWidget(l2)
         formLayout.layout().addWidget(self.t1)
@@ -43,15 +42,26 @@ class CONFIG(QWidget):
         formLayout.layout().addWidget(l4)
         formLayout.layout().addWidget(self.t2)
 
-        btsLayout = QWidget()
-        bL = QHBoxLayout()
-        bL.setAlignment(Qt.AlignRight)
-        btsLayout.setLayout(bL)
+        # groupsLayout = UI.createQWidgetLayout("V", Qt.AlignLeft | Qt.AlignTop)
+        # groups = UI.getGroupsList(self.fileName)
+        # for index, groupName in enumerate(groups):
+        #     cb = QCheckBox(groupName)
+        #     cb.setFixedHeight(24)
+        #     cb.setStyleSheet("QCheckBox::indicator {subcontrol-position: left top;}")
+        #     groupsLayout.layout().addWidget(cb)
+
+        btsLayout = UI.createQWidgetLayout("H", Qt.AlignRight)
         btsLayout.layout().addWidget(UI.toolBt("", self.save, "Save and apply these settings.", Qt.ToolButtonTextOnly, "APPLY"))
         btsLayout.layout().addWidget(UI.toolBt("", self.saveDefaults, "Save and apply the default settings.", Qt.ToolButtonTextOnly, "SET DEFAULTS"))
 
-        self.setLayout(mainLayout)
+        # for i in reversed(range(self.layout().count())): 
+        #     self.layout().itemAt(i).widget().deleteLater()
+
+        self.mainLayout = QVBoxLayout()
+        self.mainLayout.setSpacing(0)
+        self.setLayout(self.mainLayout)
         self.layout().addWidget(formLayout)
+        #self.layout().addWidget(groupsLayout)
         self.layout().addWidget(btsLayout)
 
     def save(self):
@@ -80,9 +90,13 @@ class CONFIG(QWidget):
         pass
 
     def init(self, fileName):
+        self.fileName = fileName
         self.t1.setText(str(SYS.config["colorSize"]))
         self.t2.setText(str(SYS.config["colorFontSize"]))
-        self.fileName = fileName
+        self.createUI()
+
+    def createUI(self):
+        pass
 
     def title(self, l1, text):
         l1.setText(text)

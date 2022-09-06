@@ -73,12 +73,29 @@ class UI:
         try:
             activeView = Krita.instance().activeWindow().activeView()
             fColor = activeView.foregroundColor().components()
-            if (UI.colorProfile() == "RGB"):
+            if (UI.isRGB()):
                 return QColor.fromRgbF(fColor[2], fColor[1], fColor[0], fColor[3])
             else:
                 return QColor.fromCmykF(fColor[0], fColor[1], fColor[2], fColor[3], fColor[4])
         except:
             return None
+
+    def getBackgroundQColor():
+        try:
+            activeView = Krita.instance().activeWindow().activeView()
+            fColor = activeView.backgroundColor().components()
+            if (UI.isRGB()):
+                return QColor.fromRgbF(fColor[2], fColor[1], fColor[0], fColor[3])
+            else:
+                return QColor.fromCmykF(fColor[0], fColor[1], fColor[2], fColor[3], fColor[4])
+        except:
+            return None
+
+    def getColorParams(color):
+        if (UI.isRGB()):
+            return str(color.blueF()) + "|" + str(color.greenF()) + "|" + str(color.redF()) + "|" + str(color.alphaF())
+        else:
+            return str(color.cyanF()) + "|" + str(color.magentaF()) + "|" + str(color.yellowF()) + "|" + str(color.blackF()) + "|" + str(color.alphaF())
 
     def setAnnotation(fileName):
         activeView = Krita.instance().activeDocument()
@@ -112,6 +129,12 @@ class UI:
         else:
             return "CMYK"
 
+    def isRGB():
+        return UI.colorProfile() == "RGB"
+
+    def isCMYK():
+        return UI.colorProfile() == "CMYK"
+
     def colorDepth():
         activeView = Krita.instance().activeDocument()
         return activeView.colorDepth()
@@ -119,22 +142,46 @@ class UI:
     def noKritaDoc():
         return Krita.instance().activeDocument() is None
 
-    def getManagedColor(px):
+    def getColorFromIndex(fileName, index):
+        fileContent = FILE.open(fileName)
+        return fileContent[index]
+
+    def getManagedColor(a, b, c, d):
         if (UI.colorProfile() == "RGB"):
             myColor = ManagedColor("RGBA", UI.colorDepth(), "")
             colorComponents = myColor.components()
-            colorComponents[0] = px.blueF()
-            colorComponents[1] = px.greenF()
-            colorComponents[2] = px.redF()
-            colorComponents[3] = px.alphaF()
+            colorComponents[0] = a
+            colorComponents[1] = b
+            colorComponents[2] = c
+            colorComponents[3] = 1
         else:
             myColor = ManagedColor("CMYKA", UI.colorDepth(), "")
             colorComponents = myColor.components()
-            colorComponents[0] = px.cyanF()
-            colorComponents[1] = px.magentaF()
-            colorComponents[2] = px.yellowF()
-            colorComponents[3] = px.blackF()
-            colorComponents[4] = px.alphaF()
+            colorComponents[0] = a
+            colorComponents[1] = b
+            colorComponents[2] = c
+            colorComponents[3] = d
+            colorComponents[4] = 1
+        
+        myColor.setComponents(colorComponents)
+        return(myColor)
+
+    def getManagedColorFromQColor(qColor):
+        if (UI.colorProfile() == "RGB"):
+            myColor = ManagedColor("RGBA", UI.colorDepth(), "")
+            colorComponents = myColor.components()
+            colorComponents[0] = qColor.blueF()
+            colorComponents[1] = qColor.greenF()
+            colorComponents[2] = qColor.redF()
+            colorComponents[3] = 1
+        else:
+            myColor = ManagedColor("CMYKA", UI.colorDepth(), "")
+            colorComponents = myColor.components()
+            colorComponents[0] = qColor.cyanF()
+            colorComponents[1] = qColor.magentaF()
+            colorComponents[2] = qColor.yellowF()
+            colorComponents[3] = qColor.blackF()
+            colorComponents[4] = 1
         
         myColor.setComponents(colorComponents)
         return(myColor)
@@ -148,7 +195,18 @@ class UI:
         colorComponents[3] = k
         colorComponents[4] = 1
         myColor.setComponents(colorComponents)
-        canvas =  Krita.instance().activeWindow().activeView().canvas()
+        canvas = Krita.instance().activeWindow().activeView().canvas()
+        return(myColor.colorForCanvas(canvas))
+
+    def createRGB(r, g, b):
+        myColor = ManagedColor("RGBA", UI.colorDepth(), "")
+        colorComponents = myColor.components()
+        colorComponents[0] = b
+        colorComponents[1] = g
+        colorComponents[2] = r
+        colorComponents[3] = 1
+        myColor.setComponents(colorComponents)
+        canvas = Krita.instance().activeWindow().activeView().canvas()
         return(myColor.colorForCanvas(canvas))
 
     def renderColorsMap(fileName, areaSize):
@@ -233,34 +291,16 @@ class UI:
     def drawColor(painter, data, x, y):
 
         colorName = data[0]
-        colorB = float(data[1])
-        colorG = float(data[2])
-        colorR = float(data[3])
-        colorA = float(data[4])
 
-        luminance = colorR * 0.299 + colorG * 0.587 + colorB * 0.114
+        qColor = UI.createColorFromParams(data)
+
+        luminance = UI.getLuminance(data)
         useBlack = luminance > 0.5
-
-        qColor = QColor()
-        qColor.setBlueF(colorB)
-        qColor.setGreenF(colorG)
-        qColor.setRedF(colorR)
-        qColor.setAlphaF(colorA)
-
-        if (UI.colorProfile() == "CMYK"):
-            colorC = qColor.cyanF()
-            colorM = qColor.magentaF()
-            colorY = qColor.yellowF()
-            colorK = qColor.blackF()
-            qColor = UI.createCMYK(colorC, colorM, colorY, colorK)
+        if (UI.isCMYK()): useBlack = luminance < 0.5
 
         painter.setBrush(QBrush(qColor, Qt.SolidPattern))
         painter.setPen(QPen(Qt.black, 1, Qt.SolidLine))
         painter.drawRect(x, y, SYS.config["colorSize"], SYS.config["colorSize"])
-
-        if (colorName == "RGB"):
-            colorName = str(qColor.red()) + "  " + \
-                str(qColor.green()) + "  " + str(qColor.blue())
 
         font = painter.font()
         font.setPixelSize(SYS.config["colorFontSize"])
@@ -277,6 +317,30 @@ class UI:
 
         return painter
         pass
+
+    def createColorFromParams(data):
+        qColor = QColor()
+        if (UI.isRGB()):
+            qColor = UI.createRGB(float(data[3]), float(data[2]), float(data[1]))
+        else:
+            qColor = UI.createCMYK(float(data[1]), float(data[2]), float(data[3]), float(data[4]))
+
+        return qColor
+
+    def createColorFromQColor(qColor):
+        color = QColor()
+        if (UI.isRGB()):
+            color = UI.createRGB(qColor.redF(), qColor.greenF(), qColor.blueF())
+        else:
+            color = UI.createCMYK(qColor.cyanF(), qColor.magentaF(), qColor.yellowF(), qColor.blackF())
+
+        return color
+    
+    def getLuminance(data):
+        if (UI.isRGB()):
+            return float(data[3]) * 0.299 + float(data[2]) * 0.587 + float(data[1]) * 0.114
+        else:
+            return float(data[1]) * 0.299 + float(data[2]) * 0.587 + float(data[3]) * 0.114
 
     def drawTitle(painter, data, x, y, w):
         painter.setPen(QPen(Qt.black, 1))
@@ -322,7 +386,8 @@ class UI:
         y = 0
 
         for index, color in enumerate(map):
-            painter.setBrush(QBrush(color, Qt.SolidPattern))
+            myColor = UI.createColorFromQColor(color)
+            painter.setBrush(QBrush(myColor, Qt.SolidPattern))
             painter.setPen(QPen(Qt.black, 1, Qt.SolidLine))
             painter.drawRect(x, y, size, size)
             x += size
@@ -399,3 +464,22 @@ class UI:
             if (target_qobj.isChecked()): return True
 
         return False
+
+    def getGroupsList(fileName):
+        fileContent = FILE.open(fileName)
+        groups = list()
+        for index, line in enumerate(fileContent):
+            if (SYS.lineIsTitle(line)):
+                if (line.find(">") == 0): line = line[1:]
+                groups.append(line)
+        
+        return groups
+
+    def createQWidgetLayout(direction, alignment):
+        formLayout = QWidget()
+        fL = QVBoxLayout()
+        if (direction == "H"): fL = QHBoxLayout()
+        fL.setAlignment(alignment)
+        formLayout.setLayout(fL)
+        return formLayout
+        
