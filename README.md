@@ -1,6 +1,6 @@
 # TF Easy Colors Map (Krita plugin)
 
-#### Current version: 1.7 (01/09/2022)
+#### Current version: 1.8 (06/09/2022)
 
 #### WHAT IS
 TF Easy Colors Map is a plugin for Krita for creating a Map (a collection) of your favourite colors in a very simple way. The final result of your Map can be something like this:
@@ -65,11 +65,9 @@ You can easily access your palette by right clicking on your Krita document with
 
 When you create a Colors Map, it's connected to your Krita document. This means that when you open your Krita document, your Colors Map will be automatically loaded.
 
-#### RGB & CMYK SUPPORTED
+#### RGB & CMYK SUPPORT
 
-From this plugin point of view, a color is just a color. You can work with RGB and CMYK Krita documents without any particular precaution. You can even use the same Colors Map both in RGB and CMYK documents. However, keep in mind that RGB and CMYK are different color profiles: the colors of the same Map will appear with a different hue.
-
-![preview](https://i.ibb.co/JQkrNNm/Colors-CMYK-RGB.gif)
+This plugin supports Krita's documents with RGB (RGB/Alpha) and CMYK (CMYK/Alpha) color profiles. However, in order to avoid issue with colors visualization and selection, it's not possibile to use the same Colors Map with both RGB and CMYK documents. When you create a new Colors Map, the plugin registers the Krita's document color profile inside the Map. From that moment, the Colors Map will be usable only on Krita's document with that specific color profile. 
 
 #### INLINE HELP MANUAL
 
@@ -82,6 +80,9 @@ I'm a comic artist, so I have to apply the same colors on different pages. Krita
 
 
 #### WHAT'S NEW
+
+#### 1.8 (06/09/2022)
+ - Changed the color management system in order to have correct colors with RGB or CMYK documents.
 
 #### 1.7 (01/09/2022)
  - The colors in the Colors Map are now shown correctly when using the same Map in both RGB and CMYK documents.
