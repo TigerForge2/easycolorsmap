@@ -1,6 +1,6 @@
 # TF Easy Colors Map (Krita plugin)
 
-#### Current version: 1.8 (06/09/2022)
+#### Current version: 2.0 (16/09/2022)
 
 #### WHAT IS
 TF Easy Colors Map is a plugin for Krita for creating a Map (a collection) of your favourite colors in a very simple way. The final result of your Map can be something like this:
@@ -10,12 +10,12 @@ TF Easy Colors Map is a plugin for Krita for creating a Map (a collection) of yo
 It's not meant to be a replacement of the current Krita's colors management system, but just a super easy-to-use alternative system.
 
 #### HOW IT WORKS
-All starts creating a new Colors Map, which is a simple .txt file. Now, you can start adding your colors and, if you want, organizing them with titles.
+All starts creating a new Colors Map, which is a simple text file with a .cmap extension. Now, you can start adding your colors, naming them and organizing them in collapsible / hideable Groups.
 Adding a colors is pretty simple: once you have the desired color set in the Krita document **foreground**, just **right** click your Map, type a name when requested and it's added to your collection.
 
 ![preview](https://i.ibb.co/YTBJrkk/schema.jpg)
 
-To add a color in a specific position, just **right** click with the **SHIFT** button pressed.
+TIP: To add a color in a specific position, just **right** click with the **SHIFT** button pressed.
 
 ![preview](https://i.ibb.co/W5mV8XH/schema5.jpg)
 
@@ -26,20 +26,24 @@ If you need to catch more colors (for example, grabbing them from an image) you 
 
 #### SELECT A COLOR FROM YOUR MAP
 
-In your Map, just **left** click a color and your Krita document **foreground** color is set to that color. Moreover, if you click with the **SHIFT** button pressed, the Krita document **background** color is set instead.
+In your Map, just **left** click a color and your Krita document **foreground** color is set to that color. 
+
+TIP: if you click with the **SHIFT** button pressed, the Krita document **background** color is set instead.
 
 ![preview](https://i.ibb.co/p3FRr8c/schema2.jpg)
 
 
 #### MANAGE YOUR MAP
 
-You can perform various operations to manage your colors, titles and grouped colors. For example, you can rename colors and titles, move a color in a different position, delete a color or a title, and so on. Just **right** click with the **CTRL** button pressed and a popup menu appears with all the available functionalities.
+You can perform various operations to manage your colors, names and grouped colors. For example, you can rename colors and group titles, move a color in a different position, delete a color or a group, and so on.
+Just **right** click with the **CTRL** button pressed and a popup menu appears with all the available functionalities.
 
 ![preview](https://i.ibb.co/r02X5ZQ/schema3.jpg)
 
-#### OPEN AND CLOSE THE COLORS GROUPS
+#### OPEN/CLOSE, SHOW/HIDE THE COLORS GROUPS
 
 Just click the [+] / [-] icon on the right of each Groups title to open and close that group.
+You can also show / hide the groups. Click the "Settings" button and check/uncheck the groups.
 
 ![preview](https://i.ibb.co/rw35vj0/color-openclose.png)
 
@@ -65,9 +69,11 @@ You can easily access your palette by right clicking on your Krita document with
 
 When you create a Colors Map, it's connected to your Krita document. This means that when you open your Krita document, your Colors Map will be automatically loaded.
 
-#### RGB & CMYK SUPPORT
+#### KRITA COLOR PROFILES SUPPORT (rgba, cmyka, YCbCrA, xyza, laba, graya)
 
-This plugin supports Krita's documents with RGB (RGB/Alpha) and CMYK (CMYK/Alpha) color profiles. However, in order to avoid issues with colors visualization and selection, it's not possibile to use the same Colors Map with both RGB and CMYK documents. When you create a new Colors Map, the plugin registers the Krita's document color profile inside the Map. From that moment, the Colors Map will be usable only on Krita's document with that specific color profile. 
+When you add a color to your Colors Map, this plugin not only save the various channels value, but also the color characteristics: model, depth and profile. When you click a color, the plugin sends all these params to the Krita ManagedColors system, which returns a color corresponding to the given specifications.
+
+This means that you can fill your Colors Map with colors coming from different profiles. For example, you can collect RGB, CMYK, GREY scale colors, all in the same Colors Map. However, because of the different nature of the various color profiles, this may raise some variations in your color result. For example, if you select a CMYK color of your Map in a RGB Document, if you are lucky Krita may return an RGB color equivalent to the CMYK color, otherwise you may get a little different color (usually, the same color but with a little different luminosity).
 
 #### INLINE HELP MANUAL
 
@@ -81,34 +87,8 @@ I'm a comic artist, so I have to apply the same colors on different pages. Krita
 
 #### WHAT'S NEW
 
-#### 1.8 (06/09/2022)
- - Changed the color management system in order to have correct colors with RGB or CMYK documents.
-
-#### 1.7 (01/09/2022)
- - The colors in the Colors Map are now shown correctly when using the same Map in both RGB and CMYK documents.
- - In the Krita's "Python Plugin Manager" now the plugin appears with the correct name (TF Easy Colors Map).
-
-#### 1.6 (27/07/2022)
- - When right click + CTRL, the popup menu was positioned in a wrong place scrolling down the Colors Map.
- 
-#### 1.5 (26/07/2022)
- - Resolved an annoying issue when switching among more opened Krita documents. The Colors Map wasn't loaded properly on document change.
-
-#### 1.4 (08/07/2022)
- - Colors Groups can be opened and closed (collapsed) clicking the icon on the right.
-
-#### 1.2 (06/07/2022)
- - Resolved an issue when adding a new color from CMYK Krita documents. 
-
-#### 1.1 (27/06/2022)
- - The "Easy Colors Map" palette is now available as a "pop-up palette" doing right-click + SHIFT on the Krita document.
- - Some improvements and bug fix
-
-#### 1.0 (24/06/2022)
- - Krita document and Colors Map are now connected through a dedicated annotation.
- - Added the "left click" + CTRL action for renaming the clicked Color or Group Title.
- - The new "Settings" button allows to change the Colors size and the size of their names.
- - Support for RGB and CMYK color profiles.
+#### 2.0 (16/09/2022)
+ - New plugin version
 
 #### 0.1 (22/06/2022)
-Initial release
+- Initial release
