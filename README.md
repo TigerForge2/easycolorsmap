@@ -75,8 +75,7 @@ When you add a color to your Colors Map, this plugin not only save the various c
 
 This means that you can fill your Colors Map with colors coming from different profiles. For example, you can collect RGB, CMYK, GREY scale colors, all in the same Colors Map. However, because of the different nature of the various color profiles, this may raise some variations in your resulting color.
 
-**CASE TEST**
-
+CASE TEST
 In the screenshot below, the Colors Map contains 3 colors: one with a CMYK profile, one with a LAB profile and the last one with a GRAY profile. Then, these colors have been used on 3 different Krita's Documents: a RGB, a CMYK and a LAB document.
 As result, Krita has been able to reproduce (more or less) correctly the different colors in the different documents. Just the blue and the gray colors appear a little bit darker in the CMYK document.
 
