@@ -1,7 +1,0 @@
-[Desktop Entry]
-Type=Service
-ServiceTypes=Krita/PythonPlugin
-X-KDE-Library=easycolorselector
-X-Python-2-Compatible=false
-Name=TF Easy Colors Map
-Comment=Easily create an organized collection of all your colors.
