@@ -1,1 +1,0 @@
-from .myplugin import *
