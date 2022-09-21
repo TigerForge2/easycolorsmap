@@ -97,6 +97,10 @@ I'm a comic artist, so I have to apply the same colors on different pages. Krita
 
 #### WHAT'S NEW
 
+#### 2.1 (21/09/2022)
+ - New feature: you can customize the colors of the Groups bar.
+ - Various code optimization
+
 #### 2.0 (16/09/2022)
  - New plugin version
 
