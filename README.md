@@ -1,6 +1,6 @@
 # TF Easy Colors Map (Krita plugin)
 
-#### Current version: 2.0 (16/09/2022)
+#### Current version: 2.1 (21/09/2022)
 
 #### WHAT IS
 TF Easy Colors Map is a plugin for Krita for creating a Map (a collection) of your favourite colors in a very simple way. The final result of your Map can be something like this:
@@ -40,10 +40,11 @@ Just **right** click with the **CTRL** button pressed and a popup menu appears w
 
 ![preview](https://i.ibb.co/r02X5ZQ/schema3.jpg)
 
-#### OPEN/CLOSE, SHOW/HIDE THE COLORS GROUPS
+#### OPEN/CLOSE, SHOW/HIDE, CUSTOMIZE THE COLORS GROUPS
 
-Just click the [+] / [-] icon on the right of each Groups title to open and close that group.
-You can also show / hide the groups. Click the "Settings" button and check/uncheck the groups.
+Groups can be opened and closed (collapsed) so that you can focus only on the colours you need to use in that moment. Just click the [+] / [-] icon on the right of each Groups title.
+Moreover, you can show and hide the Groups, making them visible or unvisible. Click the "Settings" button and check/uncheck the groups.
+Finally, you can change the background color and the text colors of the Groups so as to make the view more confortable for you eyes. Click the "Settings" button and specify two colors, as HTML code, in the dedicated field.
 
 ![preview](https://i.ibb.co/rw35vj0/color-openclose.png)
 
