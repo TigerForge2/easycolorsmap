@@ -16,4 +16,5 @@ class SYS:
     def getVersionString():
         return str(SYS.version / 10).replace(",", ".")
 
-    
+    def versionToNumber(versionString):
+        return int(versionString.replace(".", ""))
