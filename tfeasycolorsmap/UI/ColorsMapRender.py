@@ -63,11 +63,11 @@ class ColorsMapRender:
                     y += data["colorSize"]
                     if (counter == 0): y -= data["colorSize"]
 
-                ColorsMapRender.drawTitle(painter, item, data["titleSize"], data["titleFontSize"], x, y, W, isPopUp)
+                ColorsMapRender.drawTitle(painter, item, data["titleSize"], data["titleFontSize"], x, y, W, isPopUp, data["groupColors"])
                 map.append(str(index) + "|G|" + str(x) + "|" + str(y) + "|" + str(W) + "|" + str(data["titleSize"]))
                 counter = 0
                 x = 0
-                y += data["titleSize"]
+                y += data["titleSize"] + 1
                 wasCollapsed = not(item["isOpen"])
                 isVisible = True
 
@@ -103,11 +103,13 @@ class ColorsMapRender:
         return qColor.redF() * 0.299 + qColor.greenF() * 0.587 + qColor.blueF() * 0.114
 
     # Draw the Group collapsible title.
-    def drawTitle(painter, item, titleSize, titleFontSize, x, y, w, isPopUp):
+    def drawTitle(painter, item, titleSize, titleFontSize, x, y, w, isPopUp, colors):
         
         # The collapsible rectangle container.
-        Tools.drawRect(painter, Qt.black, Qt.black, x, y, w, titleSize)
-        Tools.drawText(painter, item["name"], Qt.white, titleFontSize, x + 8, y + 18)
+        bgColor = QColor(colors["bg"])
+        txtColor = QColor(colors["txt"])
+        Tools.drawRect(painter, bgColor, bgColor, x, y, w, titleSize)
+        Tools.drawText(painter, item["name"], txtColor, titleFontSize, x + 8, y + 18)
 
         if (not isPopUp):
             # The collapse icon [+] or [-]
@@ -139,6 +141,7 @@ class ColorsMapRender:
             "colorFontSize": 0,
             "titleFontSize": 0,
             "scrollSize": 0,
+            "groupColors": 0,
             "items": list()
         }
 
@@ -155,6 +158,7 @@ class ColorsMapRender:
                 data["colorFontSize"] = int(tmp[8])
                 data["titleFontSize"] = int(tmp[9])
                 data["scrollSize"] = int(tmp[10])
+                data["groupColors"] = ColorsMapRender.extractGroupColors(tmp[11])
             else:
                 # Groups and Colors
                 tmp = line.split("|")
@@ -279,3 +283,12 @@ class ColorsMapRender:
                         })
 
         return data
+
+    def extractGroupColors(data):
+
+        if (data == "" or len(data) < 15): return { "bg": "#000000", "txt": "#FFFFFF"}
+        if (data.find("#") < 0 or data.find(" ") < 0): return { "bg": "#000000", "txt": "#FFFFFF"}
+        tmp = data.split(" ")
+        if (len(tmp[0]) < 7 or len(tmp[1]) < 7): return { "bg": "#000000", "txt": "#FFFFFF"}
+
+        return { "bg": tmp[0], "txt": tmp[1]}

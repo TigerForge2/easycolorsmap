@@ -120,6 +120,7 @@ class QColorsMap:
         if (QColorsMap.fileName == ""): return
 
         if (FILE.exists(QColorsMap.fileName)):
+            QColorsMap.updateCheck()
             QColorsMap.load()
         else:
             QColorsMap.createNewColorsMapFile()
@@ -169,6 +170,7 @@ class QColorsMap:
         newColor = KRITA.getSelectedColor("F")
         colorName = ALERT.prompt("NEW COLOR NAME", "Type a short name for this new " + KRITA.colorParam("MODEL") + " Color:")
         if (colorName["ok"]):
+            colorName["value"] = Tools.sanitizeName(colorName["value"])
             data = "[C]|[O]|[V]|" + colorName["value"] + "|" + KRITA.colorParam("MODEL") + "|" + KRITA.colorParam("DEPTH") + "|" + KRITA.colorParam("PROFILE") + "|"
             for value in newColor: data += value + "|"
             if (index == 0):
@@ -226,7 +228,7 @@ class QColorsMap:
 
         data = ""
         data += "TF Easy Colors Map|2|" + str(SYS.version) + "|" + color["model"] + "|" + color["depth"] + "|" + color["profile"] + "|"
-        data += "42|24|10|16|16|" + "\n" # colorSize, titleSize, colorFontSize, titleFontSize, scrollSize
+        data += "42|24|10|16|16|#000000 #CCCCCC" + "||||||||||\n" # colorSize, titleSize, colorFontSize, titleFontSize, scrollSize, Groups BG and text colors (and some empty positions for future data)
         data += "[G]|[O]|[V]|NEW COLOURS GROUP|" + "\n"
 
         FILE.save(QColorsMap.fileName, data)
@@ -356,13 +358,15 @@ class QColorsMap:
     def reset():
         QColorsMap.fileName = ""
         QColorsMap.map = list()
+        try:
+            pixmap = QPixmap(1, 1)
+            pixmap.fill(Qt.transparent)
+            QColorsMap.colorsMap.setPixmap(pixmap)
+            QColorsMap.tempMap.setPixmap(pixmap)
 
-        pixmap = QPixmap(1, 1)
-        pixmap.fill(Qt.transparent)
-        QColorsMap.colorsMap.setPixmap(pixmap)
-        QColorsMap.tempMap.setPixmap(pixmap)
-
-        QColorsMap.colorLabel.setText("...")
+            QColorsMap.colorLabel.setText("...")
+        except:
+            pass
 
     # Execute a check confronting the current Document Color Profile with the loaded Colors Map file profile.
     def colorsProfileCheck():
@@ -441,3 +445,16 @@ class QColorsMap:
         qColor = KRITA.createColor("KRITA", item["colorModel"], item["colorDepth"], item["colorProfile"], item["color01"], item["color02"], item["color03"], item["color04"], item["color05"])
         return qColor
 
+    # Check the version of the Colors Map and update it if required.
+    def updateCheck():
+        fileContent = FILE.open(QColorsMap.fileName)
+        fileVersion = SYS.versionToNumber(FILE.getLineValue(fileContent[0], 2))
+        currentVersion = SYS.version
+
+        if (fileVersion < currentVersion):
+            fileContent[0] = FILE.changeLineValue(fileContent[0], 2, str(currentVersion))
+
+            if (fileVersion == 20):
+                fileContent[0] = fileContent[0].replace("\n", "") + "#000000 #CCCCCC||||||||||\n"
+
+            FILE.saveList(QColorsMap.fileName, fileContent)

@@ -102,3 +102,15 @@ class Tools:
     def isProperty(value):
         string = str(value)
         return string.find("property") >= 0
+
+    # Remove strings that may compromise the Colors Map.
+    def sanitizeName(name):
+        name = name.replace("|", "")
+        name = name.replace("[C]", "")
+        name = name.replace("[G]", "")
+        name = name.replace("[O]", "")
+        name = name.replace("[V]", "")
+        name = name.replace("[X]", "")
+        name = name.replace("[-]", "")
+        name = name.replace("\n", "")
+        return name

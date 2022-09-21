@@ -76,6 +76,7 @@ class ColorsMapMenu:
 
             title = ALERT.prompt("GROUP TITLE", "Type a title for a new group of Colors:")
             if (title["ok"]):
+                title["value"] = Tools.sanitizeName(title["value"])
                 fileContent.insert(index + 1, "[G]|[O]|[V]|" + title["value"] + "|" + "\n")
                 FILE.saveList(fileName, fileContent)
 
