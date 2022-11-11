@@ -1,6 +1,6 @@
 # TF Easy Colors Map (Krita plugin)
 
-#### Current version: 2.1 (21/09/2022)
+#### Current version: 2.2 (11/11/2022)
 
 #### WHAT IS
 TF Easy Colors Map is a plugin for Krita for creating a Map (a collection) of your favourite colors in a very simple way. The final result of your Map can be something like this:
@@ -47,6 +47,28 @@ Just **right** click with the **CTRL** button pressed and a popup menu appears w
 - Finally, you can change the background color and the text colors of the Groups so as to make the view more confortable for you eyes. Click the "Settings" button and specify two colors, as HTML code, in the dedicated field.
 
 ![preview](https://i.ibb.co/rw35vj0/color-openclose.png)
+
+#### COLORS SLOTS
+
+Imagine you have a Group containing all the colors of a character. Your character has some "fixed" colors like, for example, hair, eyes and skin colors. He also has a set of different colors, for example, if he wears a uniform or some dresses.
+
+![preview](https://i.ibb.co/fGcVFpz/immagine.png)
+
+In a complex scenario where the Group has many colors, it's not so convenient to show them all together. For example, if you are coloring pages where the character is dressed in uniform, having the colors of the various dresses is useless and may be annoying. The use of Colors Slots resolves this scenario.
+
+Just CTRL + right click a Color and select one of the available Slots from the menu. The "Main Slot" is intented for the colors you want always visible (hair, eyes and skin colors, for example). The other 5 Slots are intented for creating special "sub collections".
+
+![preview](https://i.ibb.co/BfgB0cv/immagine.png)
+
+For example, you can group all the Uniform colors into the Slot 1, the dresses colors in Slot 2 and Slot 3. Now, in the Main Slot you have only the "shared" colors. To show the colors into the Slot, just left click on the Group's Slot icon on the right and, from the menu, select the Slot you want to activate.
+
+![preview](https://i.ibb.co/qRH48Rm/immagine.png)
+
+For example, if you click Slot 1, you will see the "shared" colors (hair, eyes, skin) and the Uniform colors (the colors names are shown in italic):
+
+![preview](https://i.ibb.co/Qm9W3b3/immagine.png)
+
+In any moment, you can click "Main Slot" to shown the "shared" colors only or "Show All" for showing all the Group colors.
 
 #### TEMPORARY COLORS (SECONDARY PALETTE)
 
@@ -96,6 +118,9 @@ I'm a comic artist, so I have to apply the same colors on different pages. Krita
 
 
 #### WHAT'S NEW
+
+#### 2.2 (11/11/2022)
+ - New feature: Colors Slots
 
 #### 2.1 (21/09/2022)
  - New feature: you can customize the colors of the Groups bar.
