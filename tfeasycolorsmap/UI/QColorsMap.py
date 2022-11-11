@@ -197,8 +197,10 @@ class QColorsMap:
         QColorsMap.map = data["map"]
 
     # Return the index (1..n) and type (isColor, isGroup) of an item into the Colors Map file. It requires the QColorsMap.map property correctly filled and the click x/y coordinates.
-    def findItemIndex(x, y):
-        for index, item in enumerate(QColorsMap.map):
+    # map : for using a different map (i.e. popup Map)
+    def findItemIndex(x, y, map = None):
+        if (map is None): map = QColorsMap.map
+        for index, item in enumerate(map):
             tmp = item.split("|")
             itemIndex = int(tmp[0])
             itemType = tmp[1]

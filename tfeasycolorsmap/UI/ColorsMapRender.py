@@ -122,19 +122,19 @@ class ColorsMapRender:
         Tools.drawRect(painter, bgColor, bgColor, x, y, w, titleSize)
         Tools.drawText(painter, item["name"], txtColor, titleFontSize, x + 8, y + 18)
 
-        expX = w - titleSize + 2
-        expY = y + 4
-        expS = titleSize - 4 - 4
-
-        # Variations Slots
-        slotX = expX - expS - 4
-        Tools.drawRect(painter, Qt.gray, QColor(83, 114, 142), slotX, expY, expS, expS)
-        if (slotNumber == "*"):
-            Tools.drawText(painter, slotNumber, Qt.white, titleFontSize - 4, slotX + 6, expY + 15)
-        else:
-            Tools.drawText(painter, slotNumber, Qt.white, titleFontSize - 4, slotX + 5, expY + 13)
-
         if (not isPopUp):
+            expX = w - titleSize + 2
+            expY = y + 4
+            expS = titleSize - 4 - 4
+
+            # Variations Slots
+            slotX = expX - expS - 4
+            Tools.drawRect(painter, Qt.gray, QColor(83, 114, 142), slotX, expY, expS, expS)
+            if (slotNumber == "*"):
+                Tools.drawText(painter, slotNumber, Qt.white, titleFontSize - 4, slotX + 6, expY + 15)
+            else:
+                Tools.drawText(painter, slotNumber, Qt.white, titleFontSize - 4, slotX + 5, expY + 13)
+
             # The collapse icon [+] or [-]
             Tools.drawRect(painter, Qt.gray, QColor(83, 114, 142), expX, expY, expS, expS)
 
