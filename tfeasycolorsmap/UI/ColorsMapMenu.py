@@ -59,7 +59,14 @@ class ColorsMapMenu:
                 ["PasteGroup", "Paste Group after", "Paste the 'cut' Group and all its Colors after the clicked Color."],
                 ["-"],
                 ["Delete", "Delete", "Delete the clicked Color or Group (not its Colors)"],
-                ["DeleteGroup", "Delete Group", "Delete the clicked Group and all its Colors."]
+                ["DeleteGroup", "Delete Group", "Delete the clicked Group and all its Colors."],
+                ["-"],
+                ["[Slot_0]", "Main Slot", "Move this Color to the Main Slot."],
+                ["[Slot_1]", "Slot 1", "Move this Color to Slot 1."],
+                ["[Slot_2]", "Slot 2", "Move this Color to Slot 2."],
+                ["[Slot_3]", "Slot 3", "Move this Color to Slot 3."],
+                ["[Slot_4]", "Slot 4", "Move this Color to Slot 4."],
+                ["[Slot_5]", "Slot 5", "Move this Color to Slot 5."]
             ])
 
         action = ColorsMapMenu.contextMenu.exec_(globalPos)
@@ -169,6 +176,14 @@ class ColorsMapMenu:
 
                 FILE.saveList(fileName, fileContent)
 
+        elif ("[Slot_" in action and isColor):
+            if ("[Slot" in item):
+                lineData[13] = action
+            else:
+                lineData[13] = action + "|\n"
+
+            fileContent[index] = '|'.join(lineData)
+            FILE.saveList(fileName, fileContent)
 
     def isCutIndexValid():
         if (Tools.isProperty(ColorsMapMenu.cutItemIndex)):

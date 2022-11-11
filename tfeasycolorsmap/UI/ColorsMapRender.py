@@ -16,6 +16,7 @@ class ColorsMapRender:
         super().__init__()
 
     # Render the given Colors Map file and return a Dictionary with the rendered Pixmap and other info.
+    # isPopUp: if the Map is rendered into the Docker (false) or into the popup window (true)
     def run(fileName, scrollArea, isPopUp = False):
         map = list()
         data = ColorsMapRender.readColorsMapFile(fileName)
@@ -40,21 +41,28 @@ class ColorsMapRender:
         painter = QPainter(pixmap)
         wasCollapsed = False
         isVisible = True
+        groupSlotNumber = "*"
+        colorSlotNumber = "*"
+        canRenderColor = True
 
         for index, item in enumerate(data["items"]):
             if (item["isColor"] and not wasCollapsed and isVisible):
 
-                painter = ColorsMapRender.drawColor(painter, item, x, y, data["colorSize"], data["colorFontSize"])
-                map.append(str(index) + "|C|" + str(x) + "|" + str(y) + "|" + str(data["colorSize"]) + "|" + str(data["colorSize"]))
+                canRenderColor = True
+                if (groupSlotNumber != "*"):
+                    colorSlotNumber = ColorsMapRender.getSlotNumber(item["slot"])
+                    canRenderColor = (colorSlotNumber == groupSlotNumber) or colorSlotNumber == "0"
 
-                counter += 1
-
-                if (counter < cols):                    
-                    x += data["colorSize"]
-                else:
-                    counter = 0
-                    x = 0
-                    y += data["colorSize"]
+                if (canRenderColor):
+                    painter = ColorsMapRender.drawColor(painter, item, x, y, data["colorSize"], data["colorFontSize"], colorSlotNumber)
+                    map.append(str(index) + "|C|" + str(x) + "|" + str(y) + "|" + str(data["colorSize"]) + "|" + str(data["colorSize"]))
+                    counter += 1
+                    if (counter < cols):                    
+                        x += data["colorSize"]
+                    else:
+                        counter = 0
+                        x = 0
+                        y += data["colorSize"]
 
             elif (item["isGroup"] and item["isVisible"]):
 
@@ -63,7 +71,8 @@ class ColorsMapRender:
                     y += data["colorSize"]
                     if (counter == 0): y -= data["colorSize"]
 
-                ColorsMapRender.drawTitle(painter, item, data["titleSize"], data["titleFontSize"], x, y, W, isPopUp, data["groupColors"])
+                groupSlotNumber = ColorsMapRender.getSlotNumber(item["slot"])
+                ColorsMapRender.drawTitle(painter, item, data["titleSize"], data["titleFontSize"], x, y, W, isPopUp, data["groupColors"], groupSlotNumber)
                 map.append(str(index) + "|G|" + str(x) + "|" + str(y) + "|" + str(W) + "|" + str(data["titleSize"]))
                 counter = 0
                 x = 0
@@ -85,16 +94,18 @@ class ColorsMapRender:
         return d
 
     # Draw a colored box with an inner title.
-    def drawColor(painter, item, x, y, colorSize, fontSize):
+    def drawColor(painter, item, x, y, colorSize, fontSize, slotNumber = ""):
 
         # Requested data to show
         colorName = item["name"]
         qColor = KRITA.createColor("QCOLOR", item["colorModel"], item["colorDepth"], item["colorProfile"], item["color01"], item["color02"], item["color03"], item["color04"], item["color05"])
         useBlack = ColorsMapRender.getTextLuminance(qColor) > 0.5
-
+        
         # Render
+        style = ""
+        if (slotNumber in "1 2 3 4 5"): style = "i"
         Tools.drawRect(painter, Qt.black, qColor, x, y, colorSize, colorSize)
-        Tools.drawBoxedText(painter, colorName, Qt.black if useBlack else Qt.white, fontSize, x, y, colorSize - 4, colorSize - 4)
+        Tools.drawBoxedText(painter, colorName, Qt.black if useBlack else Qt.white, fontSize, x, y, colorSize - 4, colorSize - 4, style)
 
         return painter
     
@@ -103,19 +114,28 @@ class ColorsMapRender:
         return qColor.redF() * 0.299 + qColor.greenF() * 0.587 + qColor.blueF() * 0.114
 
     # Draw the Group collapsible title.
-    def drawTitle(painter, item, titleSize, titleFontSize, x, y, w, isPopUp, colors):
-        
+    def drawTitle(painter, item, titleSize, titleFontSize, x, y, w, isPopUp, colors, slotNumber = ""):
+
         # The collapsible rectangle container.
         bgColor = QColor(colors["bg"])
         txtColor = QColor(colors["txt"])
         Tools.drawRect(painter, bgColor, bgColor, x, y, w, titleSize)
         Tools.drawText(painter, item["name"], txtColor, titleFontSize, x + 8, y + 18)
 
+        expX = w - titleSize + 2
+        expY = y + 4
+        expS = titleSize - 4 - 4
+
+        # Variations Slots
+        slotX = expX - expS - 4
+        Tools.drawRect(painter, Qt.gray, QColor(83, 114, 142), slotX, expY, expS, expS)
+        if (slotNumber == "*"):
+            Tools.drawText(painter, slotNumber, Qt.white, titleFontSize - 4, slotX + 6, expY + 15)
+        else:
+            Tools.drawText(painter, slotNumber, Qt.white, titleFontSize - 4, slotX + 5, expY + 13)
+
         if (not isPopUp):
             # The collapse icon [+] or [-]
-            expX = w - titleSize + 2
-            expY = y + 4
-            expS = titleSize - 4 - 4
             Tools.drawRect(painter, Qt.gray, QColor(83, 114, 142), expX, expY, expS, expS)
 
             expIcon = ""
@@ -127,6 +147,18 @@ class ColorsMapRender:
                 expIcon = "+"
 
             Tools.drawText(painter, expIcon, Qt.white, titleFontSize, expX + offset, expY + 13)
+
+    # Convert the Slot Code into a Slot Symbol.
+    def getSlotNumber(slotNumber):
+        if (len(slotNumber) < 6): slotNumber = "0"
+        if (slotNumber == "[Slot_0]"): slotNumber = "0"
+        if (slotNumber == "[Slot_1]"): slotNumber = "1"
+        if (slotNumber == "[Slot_2]"): slotNumber = "2"
+        if (slotNumber == "[Slot_3]"): slotNumber = "3"
+        if (slotNumber == "[Slot_4]"): slotNumber = "4"
+        if (slotNumber == "[Slot_5]"): slotNumber = "5"
+        if (slotNumber == "[Slot_All]"): slotNumber = "*"
+        return slotNumber
 
     # Read the .cmap file and return an organizes structure of its content, suitable for the rendering process.
     def readColorsMapFile(fileName):
@@ -142,7 +174,8 @@ class ColorsMapRender:
             "titleFontSize": 0,
             "scrollSize": 0,
             "groupColors": 0,
-            "items": list()
+            "items": list(),
+            "slot": ""
         }
 
         for index, line in enumerate(fileContent):
@@ -177,7 +210,8 @@ class ColorsMapRender:
                         "color03": 0,
                         "color04": 0,
                         "color05": 0,
-                        "color": ""
+                        "color": "",
+                        "slot": tmp[4]
                     })
 
                 elif (tmp[0] == "[C]"):
@@ -195,7 +229,8 @@ class ColorsMapRender:
                         "color03": float(tmp[9]),
                         "color04": float(tmp[10]),
                         "color05": float(tmp[11]),
-                        "color": tmp[12]
+                        "color": tmp[12],
+                        "slot": tmp[13]
                     })
 
         return data

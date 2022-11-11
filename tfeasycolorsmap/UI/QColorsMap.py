@@ -7,6 +7,7 @@ import math
 from .Tools import *
 from .ColorsMapRender import *
 from .ColorsMapMenu import *
+from .ColorsSlotMenu import *
 from ..Core.KRITA import *
 from ..Core.ALERT import *
 from ..Core.FILE import *
@@ -162,6 +163,9 @@ class QColorsMap:
                     if (foundItem["isCollapse"]):
                         FILE.modifyLineToggle(QColorsMap.fileName, foundItem["index"], 1, "[O]", "[X]")
                         QColorsMap.load()
+                    if (foundItem["isSlot"]):
+                        ColorsSlotMenu.show(click["globalPos"], foundItem["index"], QColorsMap.fileName)                      
+                        QColorsMap.load()
 
             
 
@@ -207,14 +211,18 @@ class QColorsMap:
             Y2 = Y1 + itemH
 
             isCollapse = False
+            isSlot = False
             if (itemType == "G"):
                 cX1 = itemW - 16
                 cY1 = Y1
                 cX2 = cX1 + 16
                 cY2 = cY1 + 16
                 if (x >= cX1 and x <= cX2 and y >= cY1 and y <= cY2): isCollapse = True
+                cX1 = itemW - 32
+                cX2 = cX1 + 16
+                if (x >= cX1 and x <= cX2 and y >= cY1 and y <= cY2): isSlot = True
                 
-            if (x >= X1 and x <= X2 and y >= Y1 and y <= Y2): return { "index": itemIndex + 1, "isColor": itemType == "C", "isGroup": itemType == "G", "isCollapse": isCollapse }
+            if (x >= X1 and x <= X2 and y >= Y1 and y <= Y2): return { "index": itemIndex + 1, "isColor": itemType == "C", "isGroup": itemType == "G", "isCollapse": isCollapse, "isSlot": isSlot }
 
         return { "index": -1, "type": "" }
 

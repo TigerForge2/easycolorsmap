@@ -4,6 +4,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtCore import QTimer
 
 from krita import *
+from ..Core.ALERT import *
 
 # **** UI Helpers *********************************************************************************
 
@@ -65,18 +66,22 @@ class Tools:
         return painter
 
     # Draw a text into the given 'painter'
-    def drawText(painter, text, textColor, fontSize, x, y):
+    def drawText(painter, text, textColor, fontSize, x, y, style = ""):
         font = painter.font()
         font.setPixelSize(fontSize)
+        font.setItalic(True if style == "i" else False)
+        
         painter.setFont(font)
         painter.setPen(QPen(textColor, 1, Qt.SolidLine))
         painter.drawText(x, y, text)
         return painter
 
     # Draw a boxed text into the given 'painter'
-    def drawBoxedText(painter, text, textColor, fontSize, x, y, width, height):
+    def drawBoxedText(painter, text, textColor, fontSize, x, y, width, height, style = ""):
         font = painter.font()
         font.setPixelSize(fontSize)
+        font.setItalic(True if style == "i" else False)
+        
         painter.setFont(font)
         painter.setPen(QPen(textColor, 1, Qt.SolidLine))
         rectangle = QRect(x + 2, y, width, height)
