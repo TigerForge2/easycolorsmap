@@ -49,7 +49,7 @@ class COLORSPOPUP(QWidget):
 
         # LEFT CLICK
         if (click["left"]):
-            foundItem = QColorsMap.findItemIndex(click["x"], click["y"])
+            foundItem = QColorsMap.findItemIndex(click["x"], click["y"], self.map)
             if (foundItem["index"] < 0): return
 
             if (foundItem["isColor"]):
