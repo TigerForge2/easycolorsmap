@@ -18,7 +18,7 @@ class TFEasyColorsMapDocker(DockWidget):
         super().__init__()
 
         # Plugin version.
-        SYS.version = 21
+        SYS.version = 22
 
         # The plugin UI is managed by the UI class.
         UI.body = self
